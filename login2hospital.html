@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login2Hospital - CHU Yaoundé</title>
+  <style>
+    /* Reset & Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #ffffff);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: white;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #00796b; /* Teal green - common in medical branding */
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: white;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      color: #00796b;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-section {
+      padding: 40px 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border 0.3s;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #00796b;
+      box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.2);
+    }
+
+    .role-select {
+      margin-bottom: 25px;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: #00796b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn-login:hover {
+      background: #004d40;
+    }
+
+    .footer-links {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .footer-links a {
+      color: #00796b;
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        margin: 10px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .form-section {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">🏥</div>
+      <h1>Login2Hospital</h1>
+      <p>Centre Hospitalier Universitaire de Yaoundé (CHU)</p>
+    </div>
+
+    <!-- Login Form -->
+    <div class="form-section">
+      <form action="#" method="POST">
+        <div class="form-group role-select">
+          <label for="role">Select Your Role</label>
+          <select id="role" name="role" required>
+            <option value="" disabled selected>Select role</option>
+            <option value="doctor">Doctor / Physician</option>
+            <option value="nurse">Nurse</option>
+            <option value="admin">Administrator</option>
+            <option value="lab">Laboratory Staff</option>
+            <option value="patient">Patient</option>
+            <option value="pharmacist">Pharmacist</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="username">Username or Matricule</label>
+          <input type="text" id="username" name="username" placeholder="e.g. NSG/24/0040" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="btn-login">Login Securely</button>
+      </form>
+
+      <div class="footer-links">
+        <p><a href="#">Forgot Password?</a> | <a href="#">First Time Login?</a></p>
+        <p style="margin-top: 15px; font-size: 13px;">
+          © 2026 CHU Yaoundé - All Rights Reserved
+        </p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
