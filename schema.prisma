@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Hospital {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  city      String?
+  region    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  campaigns Campaign[]
+  users     User[]
+}
+
+model Campaign {
+  id              String        @id @default(uuid())
+  title           String
+  description     String        @db.Text
+  goalAmount      Float
+  currentAmount   Float         @default(0)
+  status          CampaignStatus @default(ACTIVE)
+  hospitalId      String
+  patientName     String?       // optional, can be anonymous
+  patientAge      Int?
+  diagnosis       String?
+  treatmentPlan   String?       @db.Text
+  progressUpdates Json?         // array of {date, note, amountUsed}
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  hospital        Hospital      @relation(fields: [hospitalId], references: [id])
+  donations       Donation[]
+  medias          CampaignMedia[]
+}
+
+enum CampaignStatus {
+  PENDING
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+model Donation {
+  id          String         @id @default(uuid())
+  amount      Float
+  donorName   String?        // anonymous possible
+  donorEmail  String?
+  message     String?        @db.Text
+  status      DonationStatus @default(PENDING)
+  paymentRef  String?        // Paystack reference
+  campaignId  String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  campaign    Campaign       @relation(fields: [campaignId], references: [id])
+}
+
+enum DonationStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+model CampaignMedia {
+  id         String     @id @default(uuid())
+  url        String
+  type       MediaType
+  caption    String?
+  isPublic   Boolean    @default(true)
+  campaignId String
+  uploadedAt DateTime   @default(now())
+
+  campaign   Campaign   @relation(fields: [campaignId], references: [id])
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+model User {
+  id              String     @id @default(uuid())
+  email           String     @unique
+  passwordHash    String
+  fullName        String?
+  phone           String?
+  role            UserRole   @default(FUNDER)
+  isHospitalStaff Boolean    @default(false)
+  hospitalId      String?    // if staff
+  lastLogin       DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  hospital        Hospital?  @relation(fields: [hospitalId], references: [id])
+}
+
+enum UserRole {
+  FUNDER
+  HOSPITAL_ADMIN
+  SUPER_ADMIN
+}
