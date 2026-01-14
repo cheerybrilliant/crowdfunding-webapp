@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Campaigns - Cancer Patient Support Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">CancerCare</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="campaigns.html">Campaigns</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="create-account.html">Create Account</a></li>
+            <li><a href="hospital-login.html" style="background-color: #e74c3c; padding: 0.5rem 1rem; border-radius: 5px;">Hospital Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1 class="page-title">Patient Campaigns</h1>
+        <p class="text-center">
+            Support cancer patients in their fight against this disease. 
+            Every donation makes a difference.
+        </p>
+
+        <!-- Campaign Cards Container -->
+        <div class="cards-container" id="campaignsContainer">
+            <!-- Campaign cards will be loaded here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Load and display campaigns
+        function displayCampaigns() {
+            const campaigns = loadCampaigns();
+            const container = document.getElementById('campaignsContainer');
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Create a card for each campaign
+            campaigns.forEach(campaign => {
+                // Calculate progress percentage
+                const percentage = ((campaign.raisedAmount / campaign.goalAmount) * 100).toFixed(1);
+
+                // Check if campaign has any donations
+                const hasNoDonations = campaign.raisedAmount === 0;
+
+                // Create card HTML
+                const cardHTML = `
+                    <div class="card">
+                        <h3>${campaign.patientName}</h3>
+                        ${campaign.verified ? '<p style="color: #2ecc71;">Verified Patient</p>' : ''}
+                        ${hasNoDonations ? '<p style="color: #e74c3c; font-weight: bold;">No donations yet!</p>' : ''}
+                        <p>${campaign.story}</p>
+
+                        <div style="margin: 1rem 0;">
+                            <p><strong>Goal:</strong> ${formatCurrency(campaign.goalAmount)}</p>
+                            <p><strong>Raised:</strong> ${formatCurrency(campaign.raisedAmount)}</p>
+
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${percentage}%"></div>
+                            </div>
+                            <p style="text-align: center; margin-top: 0.5rem; color: ${hasNoDonations ? '#e74c3c' : '#333'};">
+                                ${percentage}% funded
+                            </p>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <a href="campaign-details.html?id=${campaign.id}" class="btn btn-primary" style="flex: 1; text-align: center;">
+                                View Details
+                            </a>
+                            <a href="donate.html?campaign=${campaign.id}" class="btn btn-secondary" style="flex: 1; text-align: center; ${hasNoDonations ? 'background-color: #e74c3c; border-color: #e74c3c;' : ''}">
+                                ${hasNoDonations ? 'Be First to Donate!' : 'Donate Now'}
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                // Add card to container
+                container.innerHTML += cardHTML;
+            });
+            
+            // If no campaigns exist
+            if (campaigns.length === 0) {
+                container.innerHTML = `
+                    <div class="card" style="grid-column: 1 / -1;">
+                        <p class="text-center">No campaigns available at the moment. Check back soon!</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load campaigns when page loads
+        window.addEventListener('load', displayCampaigns);
+    </script>
+</body>
+</html>
+
