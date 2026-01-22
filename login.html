@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Cancer Patient Support Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">CancerCare</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="campaigns.html">Campaigns</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="create-account.html">Create Account</a></li>
+            <li><a href="hospital-login.html" style="background-color: #e74c3c; padding: 0.5rem 1rem; border-radius: 5px;">Hospital Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1 class="page-title">Login</h1>
+
+        <!-- Login Form -->
+        <div class="form-container">
+            <form id="loginForm">
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+
+            <!-- Additional Links -->
+            <div class="text-center mt-2">
+                <p><a href="forgot-password.html">Forgot Password?</a></p>
+                <p><a href="hospital-login.html">Hospital Login</a></p>
+            </div>
+
+            <!-- Link to Create Account -->
+            <p class="text-center mt-2">
+                Don't have an account? <a href="create-account.html">Create one here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="api.js"></script>
+    <script>
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Validate email
+            if (!validateEmail(email)) {
+                showAlert('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            // Validate password
+            if (!validatePassword(password)) {
+                showAlert('Password must be at least 6 characters long', 'error');
+                return;
+            }
+            
+            try {
+                // Call backend API
+                const response = await authAPI.login(email, password);
+                
+                if (response && response.user) {
+                    showAlert('Login successful!', 'success');
+                    
+                    // Redirect based on account type
+                    setTimeout(() => {
+                        if (response.user.accountType === 'patient') {
+                            window.location.href = 'patient-dashboard.html';
+                        } else {
+                            window.location.href = 'donor-dashboard.html';
+                        }
+                    }, 1500);
+                }
+            } catch (error) {
+                showAlert(error.message || 'Login failed. Please check your credentials.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
+
