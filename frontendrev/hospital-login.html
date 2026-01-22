@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Admin Login - Cancer Patient Support Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">CancerCare</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="campaigns.html">Campaigns</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="create-account.html">Create Account</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="form-container">
+            <h1 class="page-title">Hospital Admin Login</h1>
+            <p class="text-center" style="margin-bottom: 2rem;">
+                Access the hospital dashboard to verify patients and manage campaigns
+            </p>
+
+            <!-- Hospital Login Form -->
+            <form id="hospitalLoginForm" class="form">
+                <div class="form-group">
+                    <label for="hospitalId">Hospital ID</label>
+                    <input 
+                        type="text" 
+                        id="hospitalId" 
+                        name="hospitalId" 
+                        placeholder="Enter your hospital ID"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Login to Dashboard</button>
+            </form>
+
+            <!-- Links -->
+            <div class="text-center mt-2">
+                <p>Don't have an account? <a href="hospital-register.html">Register Hospital</a></p>
+                <p>Not a hospital admin? <a href="login.html">Regular User Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CancerCare</h3>
+                <p>Supporting cancer patients in Yaoundé through community-driven fundraising and health education.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="campaigns.html">Active Campaigns</a></li>
+                    <li><a href="events.html">Health Events</a></li>
+                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get Involved</h4>
+                <ul>
+                    <li><a href="create-account.html">Create Account</a></li>
+                    <li><a href="donate.html">Make a Donation</a></li>
+                    <li><a href="verification.html">Patient Verification</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin: 0.5rem 0;">
+                    <strong>Phone:</strong><br>
+                    +237 680 480 725<br>
+                    +237 681 018 022
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Available Monday - Friday, 8AM - 5PM
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Handle hospital login form submission with security
+        document.getElementById('hospitalLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const hospitalId = sanitizeInput(document.getElementById('hospitalId').value);
+            const password = document.getElementById('password').value;
+
+            // Validate inputs
+            if (!hospitalId || !password) {
+                showAlert('Please enter both Hospital ID and Password', 'error');
+                return;
+            }
+
+            try {
+                // Validate credentials with rate limiting
+                if (validateHospitalLogin(hospitalId, password)) {
+                    // Create secure session
+                    createHospitalSession(hospitalId);
+                    showAlert('Login successful! Redirecting to dashboard...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'hospital-dashboard.html';
+                    }, 1000);
+                } else {
+                    showAlert('Invalid hospital ID or password. Please try again.', 'error');
+                }
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        });
+
+
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Cancer Patient Support Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">CancerCare</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="campaigns.html">Campaigns</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="create-account.html">Create Account</a></li>
+            <li><a href="hospital-login.html" style="background-color: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 5px; border: 1px solid white;">Hospital Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Help Cancer Patients in Yaoundé Get the Treatment They Need</h1>
+            <p class="hero-subtitle">
+                Support verified cancer patients through transparent, community-driven fundraising.
+                Every donation brings hope and saves lives.
+            </p>
+            <div class="hero-buttons">
+                <a href="campaigns.html" class="btn btn-primary btn-large">Browse Campaigns</a>
+                <a href="create-account.html" class="btn btn-secondary btn-large">Get Started</a>
+            </div>
+        </div>
+
+        <!-- Statistics Container -->
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-number" id="activeCampaignsCount">0</div>
+                <div class="stat-label">Active Campaigns</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="verifiedPatientsPercent">100%</div>
+                <div class="stat-label">Verified Patients</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="partnerHospitalsCount">0</div>
+                <div class="stat-label">Partner Hospitals</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image 1 Section -->
+    <div class="container">
+        <div class="image-section">
+            <img src="image/image 1.jpeg" alt="Cancer Care Support" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px; margin: 2rem 0;">
+        </div>
+    </div>
+
+    <!-- Urgent Campaigns Section -->
+    <div class="container">
+        <div class="section-header">
+            <h2 class="page-title">Patients Who Need Your Help Now</h2>
+            <p class="section-subtitle">Every donation brings hope. Be the first to make a difference.</p>
+        </div>
+
+        <div id="featuredCampaigns" class="cards-container">
+            <!-- Campaigns will be loaded here by JavaScript -->
+        </div>
+
+        <div class="text-center mt-2">
+            <a href="campaigns.html" class="btn btn-primary">View All Campaigns</a>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="how-it-works-section">
+        <div class="container">
+            <h2 class="page-title">How CancerCare Works</h2>
+            <p class="section-subtitle">Simple, transparent, and secure fundraising for cancer patients</p>
+
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Patient Verification</h3>
+                    <p>Cancer patients register and submit medical documents to our partner hospitals for verification.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Create Campaign</h3>
+                    <p>Verified patients create fundraising campaigns with their story and treatment needs.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Community Support</h3>
+                    <p>Donors browse verified campaigns and contribute through secure mobile money payments.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3>Get Treatment</h3>
+                    <p>Funds are used directly for medical treatment, giving patients the care they need.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image 2 Section -->
+    <div class="container">
+        <div class="image-section">
+            <img src="image/image 2.jpeg" alt="Community Support" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px; margin: 2rem 0;">
+        </div>
+    </div>
+
+    <!-- Health Events Funding Section -->
+    <div class="container">
+        <div class="section-header">
+            <h2 class="page-title">Support Our Health Events & Seminars</h2>
+            <p class="section-subtitle">Help us organize free health screenings, cancer awareness seminars, and support group meetings for the community.</p>
+        </div>
+
+        <div id="eventsNeedingFunding" class="cards-container">
+            <!-- Events needing funding will be loaded here by JavaScript -->
+        </div>
+
+        <div class="text-center mt-2">
+            <a href="events.html" class="btn btn-primary">View All Events</a>
+        </div>
+    </div>
+
+    <!-- Why Choose Us Section -->
+    <div class="container">
+        <h2 class="page-title">Why Choose CancerCare?</h2>
+
+        <div class="cards-container">
+            <div class="card feature-card">
+                <div class="feature-icon-text">VERIFIED</div>
+                <h3>100% Verified Patients</h3>
+                <p>
+                    Every patient is verified by our partner hospitals in Yaoundé.
+                    You can donate with confidence knowing your support reaches real patients.
+                </p>
+            </div>
+
+            <div class="card feature-card">
+                <div class="feature-icon-text">HOSPITAL</div>
+                <h3>Trusted Hospital Partners</h3>
+                <p>
+                    We work with leading hospitals in Yaoundé to ensure medical
+                    documentation is authentic and treatment plans are legitimate.
+                </p>
+            </div>
+
+            <div class="card feature-card">
+                <div class="feature-icon-text">SECURE</div>
+                <h3>Secure Payments</h3>
+                <p>
+                    Donate safely using MTN Mobile Money or Orange Money.
+                    All transactions are secure and transparent.
+                </p>
+            </div>
+
+            <div class="card feature-card">
+                <div class="feature-icon-text">TRANSPARENT</div>
+                <h3>Full Transparency</h3>
+                <p>
+                    Track every donation and see exactly how funds are being used
+                    to support cancer patients and health initiatives.
+                </p>
+            </div>
+
+            <div class="card feature-card">
+                <div class="feature-icon-text">EDUCATION</div>
+                <h3>Health Education</h3>
+                <p>
+                    Join our free health seminars to learn about cancer prevention,
+                    early detection, and treatment options.
+                </p>
+            </div>
+
+            <div class="card feature-card">
+                <div class="feature-icon-text">COMMUNITY</div>
+                <h3>Community Driven</h3>
+                <p>
+                    Built by students for the community. We believe in the power
+                    of collective action to make healthcare accessible.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Make a Difference?</h2>
+                <p>Join our community of compassionate donors and help cancer patients get the treatment they need.</p>
+                <div class="cta-buttons">
+                    <a href="campaigns.html" class="btn btn-primary btn-large">Browse Campaigns</a>
+                    <a href="create-account.html" class="btn btn-secondary btn-large">Create Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Partner Hospitals Section -->
+    <div class="container">
+        <h2 class="page-title">Our Trusted Partner Hospitals</h2>
+        <p class="section-subtitle">
+            We collaborate with leading hospitals in Yaoundé to verify every patient campaign
+        </p>
+
+        <div class="cards-container">
+            <div class="card hospital-card">
+                <h3>Yaoundé General Hospital</h3>
+                <p class="hospital-location">Centre Ville, Yaoundé</p>
+                <p class="hospital-services">Oncology Department, Chemotherapy, Radiation Therapy</p>
+                <span class="verified-badge">Verified Partner</span>
+            </div>
+            <div class="card hospital-card">
+                <h3>Yaoundé Central Hospital</h3>
+                <p class="hospital-location">Tsinga, Yaoundé</p>
+                <p class="hospital-services">Cancer Screening, Surgery, Patient Support</p>
+                <span class="verified-badge">Verified Partner</span>
+            </div>
+            <div class="card hospital-card">
+                <h3>University Teaching Hospital</h3>
+                <p class="hospital-location">Ngoa-Ekelle, Yaoundé</p>
+                <p class="hospital-services">Advanced Cancer Treatment, Research, Clinical Trials</p>
+                <span class="verified-badge">Verified Partner</span>
+            </div>
+        </div>
+
+        <div class="text-center mt-2">
+            <a href="partner-hospitals.html" class="btn btn-primary">View All Partner Hospitals</a>
+        </div>
+    </div>
+
+    <!-- Upcoming Events Section -->
+    <div class="events-section">
+        <div class="container">
+            <h2 class="page-title">Upcoming Health Events</h2>
+            <p class="section-subtitle">Join our free health seminars and community gatherings</p>
+
+            <div id="upcomingEvents" class="cards-container">
+                <!-- Events will be loaded here by JavaScript -->
+            </div>
+
+            <div class="text-center mt-2">
+                <a href="events.html" class="btn btn-primary">View All Events</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="container">
+        <div class="about-home-section">
+            <div class="about-content">
+                <h2>About CancerCare Platform</h2>
+                <p>
+                    Created by six passionate students from Yaoundé, CancerCare is more than just
+                    a fundraising platform. We're building a community where cancer patients can
+                    find hope, support, and the financial resources they need to fight their battle.
+                </p>
+                <p>
+                    Every patient is verified by our partner hospitals, ensuring that your donations
+                    reach those who truly need help. Together, we're making quality cancer treatment
+                    accessible to everyone in our community.
+                </p>
+                <a href="about.html" class="btn btn-secondary">Meet Our Team</a>
+            </div>
+            <div class="about-stats">
+                <div class="about-stat-item">
+                    <h3>Our Mission</h3>
+                    <p>To provide accessible, transparent fundraising for cancer patients in Yaoundé</p>
+                </div>
+                <div class="about-stat-item">
+                    <h3>Our Vision</h3>
+                    <p>A community where no cancer patient is left behind due to financial constraints</p>
+                </div>
+                <div class="about-stat-item">
+                    <h3>Our Values</h3>
+                    <p>Transparency, Compassion, Verification, Community Support</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CancerCare</h3>
+                <p>Supporting cancer patients in Yaoundé through community-driven fundraising and health education.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="campaigns.html">Active Campaigns</a></li>
+                    <li><a href="events.html">Health Events</a></li>
+                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get Involved</h4>
+                <ul>
+                    <li><a href="create-account.html">Create Account</a></li>
+                    <li><a href="donate.html">Make a Donation</a></li>
+                    <li><a href="verification.html">Patient Verification</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin: 0.5rem 0;">
+                    <strong>Phone:</strong><br>
+                    +237 680 480 725<br>
+                    +237 681 018 022
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Available Monday - Friday, 8AM - 5PM
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem;">
+                <a href="admin-panel.html" style="color: #ccc; text-decoration: none;">Admin Panel</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Load featured campaigns on home page
+        window.addEventListener('load', function() {
+            const campaigns = loadCampaigns();
+            const featuredCampaignsContainer = document.getElementById('featuredCampaigns');
+
+            // Update stats dynamically
+            document.getElementById('activeCampaignsCount').textContent = campaigns.length;
+
+            // Calculate verified patients percentage
+            const verifiedCount = campaigns.filter(c => c.verified).length;
+            const verifiedPercent = campaigns.length > 0 ? Math.round((verifiedCount / campaigns.length) * 100) : 100;
+            document.getElementById('verifiedPatientsPercent').textContent = verifiedPercent + '%';
+
+            // Get partner hospitals count from localStorage
+            const hospitals = JSON.parse(localStorage.getItem('hospitals') || '[]');
+            document.getElementById('partnerHospitalsCount').textContent = hospitals.length || 5;
+
+            if (featuredCampaignsContainer) {
+                // Clear existing campaigns
+                featuredCampaignsContainer.innerHTML = '';
+
+                // Show ALL campaigns (not just 3)
+                campaigns.forEach(campaign => {
+                    const percentage = ((campaign.raisedAmount / campaign.goalAmount) * 100).toFixed(1);
+                    const hasNoDonations = campaign.raisedAmount === 0;
+                    const createdDate = campaign.createdDate ? new Date(campaign.createdDate).toLocaleDateString() : 'N/A';
+
+                    const campaignCard = document.createElement('div');
+                    campaignCard.className = 'card campaign-card';
+                    campaignCard.innerHTML = `
+                        <h3>${campaign.patientName}</h3>
+                        ${campaign.verified ? '<span class="verified-badge" style="display: inline-block; margin-bottom: 0.5rem;">Verified Patient</span>' : ''}
+                        <p style="color: #666; font-size: 0.9rem; margin: 0.3rem 0;">
+                            <strong>Hospital:</strong> ${campaign.hospitalName || 'N/A'}
+                        </p>
+                        <p style="color: #666; font-size: 0.9rem; margin: 0.3rem 0;">
+                            <strong>Date:</strong> ${createdDate}
+                        </p>
+                        ${hasNoDonations ? '<p style="color: #e74c3c; font-weight: bold; margin: 0.5rem 0;">No donations yet - Be the first!</p>' : ''}
+                        <p style="margin: 1rem 0;">${campaign.story}</p>
+
+                        <div style="margin: 1rem 0;">
+                            <p><strong>Goal:</strong> ${formatCurrency(campaign.goalAmount)}</p>
+                            <p><strong>Raised:</strong> ${formatCurrency(campaign.raisedAmount)}</p>
+
+                            <div class="progress-bar" style="margin: 1rem 0;">
+                                <div class="progress-fill" style="width: ${percentage}%"></div>
+                            </div>
+                            <p style="text-align: center; color: ${hasNoDonations ? '#e74c3c' : '#2ecc71'}; font-weight: bold;">
+                                ${percentage}% funded
+                            </p>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <a href="campaign-details.html?id=${campaign.id}" class="btn btn-primary" style="flex: 1; text-align: center;">
+                                View Details
+                            </a>
+                            <a href="donate.html?campaign=${campaign.id}" class="btn btn-secondary" style="flex: 1; text-align: center; ${hasNoDonations ? 'background-color: #e74c3c; border-color: #e74c3c;' : ''}">
+                                ${hasNoDonations ? 'Be First!' : 'Donate'}
+                            </a>
+                        </div>
+                    `;
+
+                    featuredCampaignsContainer.appendChild(campaignCard);
+                });
+            }
+
+            // Load events needing funding
+            const eventsNeedingFundingContainer = document.getElementById('eventsNeedingFunding');
+            if (eventsNeedingFundingContainer) {
+                const events = loadEvents();
+                const eventsNeedingFunding = events.filter(e => e.needsFunding && e.raisedAmount < e.goalAmount);
+
+                if (eventsNeedingFunding.length === 0) {
+                    eventsNeedingFundingContainer.innerHTML = `
+                        <div class="card" style="text-align: center; padding: 2rem;">
+                            <p style="color: #2ecc71; font-size: 1.2rem; font-weight: bold;">
+                                All events are fully funded! Thank you for your support!
+                            </p>
+                            <p style="color: #666; margin-top: 1rem;">
+                                Check back soon for new events that need your help.
+                            </p>
+                        </div>
+                    `;
+                } else {
+                    eventsNeedingFunding.forEach(event => {
+                        const percentage = ((event.raisedAmount / event.goalAmount) * 100).toFixed(1);
+                        const remaining = event.goalAmount - event.raisedAmount;
+
+                        const eventCard = document.createElement('div');
+                        eventCard.className = 'card';
+                        eventCard.innerHTML = `
+                            <h3>${event.title}</h3>
+                            <p style="color: #666; margin: 0.5rem 0;">
+                                <strong>Date:</strong> ${new Date(event.date).toLocaleDateString('en-US', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </p>
+                            <p style="color: #666; margin: 0.5rem 0;">
+                                <strong>Type:</strong> ${event.type}
+                            </p>
+                            <p style="margin: 1rem 0;">${event.description}</p>
+
+                            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span><strong>Goal:</strong> ${formatCurrency(event.goalAmount)}</span>
+                                    <span><strong>Raised:</strong> ${formatCurrency(event.raisedAmount)}</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${percentage}%"></div>
+                                </div>
+                                <p style="text-align: center; color: #1976D2; font-weight: bold; margin-top: 0.5rem;">
+                                    ${percentage}% funded
+                                </p>
+                                <p style="text-align: center; color: #e74c3c; font-weight: bold; margin-top: 0.5rem;">
+                                    ${formatCurrency(remaining)} needed
+                                </p>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                                <a href="events.html" class="btn btn-primary" style="flex: 1; text-align: center;">
+                                    View Details
+                                </a>
+                                <a href="events.html" class="btn btn-secondary" style="flex: 1; text-align: center; background-color: #2ecc71; border-color: #2ecc71;">
+                                    Donate Now
+                                </a>
+                            </div>
+                        `;
+
+                        eventsNeedingFundingContainer.appendChild(eventCard);
+                    });
+                }
+            }
+
+            // Load upcoming events
+            const upcomingEventsContainer = document.getElementById('upcomingEvents');
+            if (upcomingEventsContainer) {
+                const events = [
+                    {
+                        title: 'Cancer Prevention Seminar',
+                        date: 'February 15, 2026',
+                        location: 'Yaoundé General Hospital',
+                        type: 'Seminar'
+                    },
+                    {
+                        title: 'Free Health Screening',
+                        date: 'February 22, 2026',
+                        location: 'Community Center, Tsinga',
+                        type: 'Health Gathering'
+                    },
+                    {
+                        title: 'Nutrition & Cancer Workshop',
+                        date: 'March 1, 2026',
+                        location: 'University Teaching Hospital',
+                        type: 'Seminar'
+                    }
+                ];
+
+                events.forEach(event => {
+                    const eventCard = document.createElement('div');
+                    eventCard.className = 'card event-card';
+                    eventCard.innerHTML = `
+                        <span class="event-type-badge ${event.type === 'Seminar' ? 'seminar' : 'health-gathering'}">${event.type}</span>
+                        <h3>${event.title}</h3>
+                        <p><strong>Date:</strong> ${event.date}</p>
+                        <p><strong>Location:</strong> ${event.location}</p>
+                        <a href="events.html" class="btn btn-primary" style="margin-top: 1rem;">Learn More</a>
+                    `;
+
+                    upcomingEventsContainer.appendChild(eventCard);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
