@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id              String    @id @default(uuid())
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
   fullName        String
   email           String    @unique
   phone           String
@@ -16,14 +16,15 @@ model User {
   accountType     String    // donor | patient
   verified        Boolean   @default(false)
   campaign        Campaign? @relation(fields: [campaignId], references: [id])
-  campaignId      String?   @unique
+  campaignId      String?   @unique @db.ObjectId
+  donations       Donation[]
   registrationDate DateTime  @default(now())
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
 
 model Hospital {
-  id              String                 @id @default(uuid())
+  id              String                 @id @default(auto()) @map("_id") @db.ObjectId
   hospitalId      String                 @unique
   hospitalName    String
   address         String
@@ -32,7 +33,6 @@ model Hospital {
   adminEmail      String                 @unique
   passwordHash    String
   status          String                 @default("pending")
-  verifiedPatients User[]
   services        String?
   registeredDate  DateTime               @default(now())
   verificationRequests VerificationRequest[]
@@ -41,7 +41,7 @@ model Hospital {
 }
 
 model Campaign {
-  id              String      @id @default(uuid())
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
   title           String
   description     String
   goalAmount      Float
@@ -50,7 +50,8 @@ model Campaign {
   patientAge      Int?
   hospitalName    String
   photo           String?
-  patient         User?
+  patient         User?       @relation(fields: [patientId], references: [id])
+  patientId       String?     @db.ObjectId
   donations       Donation[]
   creationDate    DateTime    @default(now())
   createdAt       DateTime    @default(now())
@@ -58,7 +59,7 @@ model Campaign {
 }
 
 model Event {
-  id              String      @id @default(uuid())
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
   title           String
   date            DateTime
   location        String
@@ -70,26 +71,29 @@ model Event {
 }
 
 model Donation {
-  id              String      @id @default(uuid())
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
   amount          Float
   donorName       String      @default("Anonymous")
-  paymentMethod   String
-  reference       String?     // Paystack ref
+  paymentMethod   String      // mtn, orange, paystack, bank
+  reference       String?     // MTN or Paystack ref
+  requestId       String?     // MTN request ID
   status          String      @default("pending")
   campaign        Campaign?   @relation(fields: [campaignId], references: [id])
-  campaignId      String?
+  campaignId      String?     @db.ObjectId
   event           Event?      @relation(fields: [eventId], references: [id])
-  eventId         String?
+  eventId         String?     @db.ObjectId
   message         String?
+  donorPhone      String?
   createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 model VerificationRequest {
-  id              String      @id @default(uuid())
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
   patientName     String
   patientEmail    String
   hospital        Hospital    @relation(fields: [hospitalId], references: [id])
-  hospitalId      String
+  hospitalId      String      @db.ObjectId
   diagnosis       String
   treatmentCost   Float
   status          String      @default("pending")

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { registerUser, loginUser, registerHospital, loginHospital } from '../services/auth.service';
-import { validate } from '../middlewares/validate.middleware';
+import { registerUser, loginUser, registerHospital, loginHospital } from './auth.service';
+import { validate } from './validate.middleware';
 import Joi from 'joi';
 
 const userSchema = Joi.object({
@@ -24,8 +24,8 @@ const hospitalSchema = Joi.object({
 
 export const registerUserController = [validate(userSchema), async (req: Request, res: Response) => {
   try {
-    const user = await registerUser(req.body);
-    res.status(201).json(user);
+    const result = await registerUser(req.body);
+    res.status(201).json(result);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
   }
@@ -33,18 +33,17 @@ export const registerUserController = [validate(userSchema), async (req: Request
 
 export const loginUserController = async (req: Request, res: Response) => {
   try {
-    const { user, token } = await loginUser(req.body.email, req.body.password);
-    res.json({ user, token });
+    const result = await loginUser(req.body.email, req.body.password);
+    res.json(result);
   } catch (err: any) {
     res.status(401).json({ message: err.message });
   }
 };
 
-// Similar for hospital
 export const registerHospitalController = [validate(hospitalSchema), async (req: Request, res: Response) => {
   try {
-    const hospital = await registerHospital(req.body);
-    res.status(201).json(hospital);
+    const result = await registerHospital(req.body);
+    res.status(201).json(result);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
   }
@@ -52,8 +51,8 @@ export const registerHospitalController = [validate(hospitalSchema), async (req:
 
 export const loginHospitalController = async (req: Request, res: Response) => {
   try {
-    const { hospital, token } = await loginHospital(req.body.adminEmail, req.body.password);
-    res.json({ hospital, token });
+    const result = await loginHospital(req.body.adminEmail, req.body.password);
+    res.json(result);
   } catch (err: any) {
     res.status(401).json({ message: err.message });
   }
