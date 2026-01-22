@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - Cancer Patient Support Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .dashboard-header {
+            background: var(--primary-blue);
+            color: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .stat-box h3 {
+            font-size: 2rem;
+            color: var(--primary-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-box p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .dashboard-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-verified {
+            background-color: #E3F2FD;
+            color: var(--primary-blue);
+        }
+
+        .status-pending {
+            background-color: #FFF3E0;
+            color: #F57C00;
+        }
+
+        .status-active {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">CancerCare</a>
+        <ul class="nav-links">
+            <li><a href="patient-dashboard.html">My Dashboard</a></li>
+            <li><a href="campaigns.html">All Campaigns</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="#" id="logoutBtn">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <h1>Welcome, <span id="patientName">Patient</span>!</h1>
+            <p>Manage your campaign and track your fundraising progress</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Dashboard Stats -->
+        <div class="dashboard-stats">
+            <div class="stat-box">
+                <h3 id="totalRaised">0 XAF</h3>
+                <p>Total Raised</p>
+            </div>
+            <div class="stat-box">
+                <h3 id="goalAmount">0 XAF</h3>
+                <p>Goal Amount</p>
+            </div>
+            <div class="stat-box">
+                <h3 id="donorCount">0</h3>
+                <p>Total Donors</p>
+            </div>
+            <div class="stat-box">
+                <h3 id="daysLeft">--</h3>
+                <p>Days Left</p>
+            </div>
+        </div>
+
+        <!-- Verification Status -->
+        <div class="dashboard-section">
+            <h2>Verification Status</h2>
+            <p>Status: <span class="status-badge status-verified" id="verificationStatus">Verified</span></p>
+            <p style="margin-top: 1rem; color: #666;">
+                Your account has been verified by <span id="verifiedBy">Hospital Name</span>
+            </p>
+        </div>
+
+        <!-- My Campaign -->
+        <div class="dashboard-section">
+            <h2>My Campaign</h2>
+            <div id="myCampaign">
+                <p>You don't have an active campaign yet.</p>
+                <div class="action-buttons">
+                    <a href="verification.html" class="btn btn-primary">Create Campaign</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Donations -->
+        <div class="dashboard-section">
+            <h2>Recent Donations</h2>
+            <div id="recentDonations">
+                <p style="color: #666;">No donations yet. Share your campaign to get support!</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dashboard-section">
+            <h2>Quick Actions</h2>
+            <div class="action-buttons">
+                <a href="campaigns.html" class="btn btn-secondary">View All Campaigns</a>
+                <a href="events.html" class="btn btn-secondary">Browse Events</a>
+                <a href="about.html" class="btn btn-secondary">About Us</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CancerCare</h3>
+                <p>Supporting cancer patients in Yaoundé through community-driven fundraising and health education.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="campaigns.html">Active Campaigns</a></li>
+                    <li><a href="events.html">Health Events</a></li>
+                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get Involved</h4>
+                <ul>
+                    <li><a href="create-account.html">Create Account</a></li>
+                    <li><a href="donate.html">Make a Donation</a></li>
+                    <li><a href="verification.html">Patient Verification</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin: 0.5rem 0;">
+                    <strong>Phone:</strong><br>
+                    +237 680 480 725<br>
+                    +237 681 018 022
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Available Monday - Friday, 8AM - 5PM
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Security: Check patient authentication on page load
+        window.addEventListener('load', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+
+            if (!currentUser || currentUser.userType !== 'patient') {
+                showAlert('Please login as a patient to access this page', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+
+            // Display patient name
+            document.getElementById('patientName').textContent = currentUser.fullName || 'Patient';
+
+            // Load patient's campaign data
+            loadPatientDashboard(currentUser);
+        });
+
+        // Load patient dashboard data
+        function loadPatientDashboard(user) {
+            const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+            const patientCampaign = campaigns.find(c => c.patientEmail === user.email);
+
+            if (patientCampaign) {
+                // Update stats
+                document.getElementById('totalRaised').textContent = patientCampaign.raised.toLocaleString() + ' XAF';
+                document.getElementById('goalAmount').textContent = patientCampaign.goal.toLocaleString() + ' XAF';
+                document.getElementById('donorCount').textContent = patientCampaign.donors || 0;
+
+                // Calculate days left
+                const deadline = new Date(patientCampaign.deadline);
+                const today = new Date();
+                const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+                document.getElementById('daysLeft').textContent = daysLeft > 0 ? daysLeft : 'Ended';
+
+                // Display campaign
+                const campaignDiv = document.getElementById('myCampaign');
+                const progressPercent = Math.min((patientCampaign.raised / patientCampaign.goal) * 100, 100);
+
+                campaignDiv.innerHTML = `
+                    <h3>${patientCampaign.title}</h3>
+                    <p style="color: #666; margin: 1rem 0;">${patientCampaign.description}</p>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                    </div>
+                    <p style="margin-top: 0.5rem; color: #666;">
+                        ${progressPercent.toFixed(1)}% of goal reached
+                    </p>
+
+                    <div class="action-buttons">
+                        <a href="campaign-details.html?id=${patientCampaign.id}" class="btn btn-primary">View Campaign</a>
+                        <button onclick="shareCampaign('${patientCampaign.id}')" class="btn btn-secondary">Share Campaign</button>
+                    </div>
+                `;
+
+                // Load recent donations
+                loadRecentDonations(patientCampaign.id);
+            }
+
+            // Update verification status
+            if (user.verified) {
+                document.getElementById('verificationStatus').textContent = 'Verified ✓';
+                document.getElementById('verifiedBy').textContent = user.verifiedBy || 'Partner Hospital';
+            } else {
+                document.getElementById('verificationStatus').className = 'status-badge status-pending';
+                document.getElementById('verificationStatus').textContent = 'Pending Verification';
+            }
+        }
+
+        // Load recent donations
+        function loadRecentDonations(campaignId) {
+            const donations = JSON.parse(localStorage.getItem('donations') || '[]');
+            const campaignDonations = donations.filter(d => d.campaignId === campaignId)
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 5);
+
+            const donationsDiv = document.getElementById('recentDonations');
+
+            if (campaignDonations.length === 0) {
+                donationsDiv.innerHTML = '<p style="color: #666;">No donations yet. Share your campaign to get support!</p>';
+                return;
+            }
+
+            donationsDiv.innerHTML = campaignDonations.map(donation => `
+                <div class="card" style="margin-bottom: 1rem;">
+                    <p><strong>${donation.donorName || 'Anonymous'}</strong> donated <strong>${donation.amount.toLocaleString()} XAF</strong></p>
+                    <p style="color: #666; font-size: 0.9rem;">${new Date(donation.date).toLocaleDateString()}</p>
+                    ${donation.message ? `<p style="font-style: italic; color: #666;">"${donation.message}"</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Share campaign function
+        function shareCampaign(campaignId) {
+            const url = window.location.origin + '/campaign-details.html?id=' + campaignId;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Support My Cancer Treatment',
+                    text: 'Please help me raise funds for my cancer treatment',
+                    url: url
+                }).catch(() => {});
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(url).then(() => {
+                    showAlert('Campaign link copied to clipboard!', 'success');
+                });
+            }
+        }
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('currentUser');
+            showAlert('Logged out successfully', 'success');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

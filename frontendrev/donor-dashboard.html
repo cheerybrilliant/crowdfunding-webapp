@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Dashboard - Cancer Patient Support Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .dashboard-header {
+            background: var(--primary-blue);
+            color: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .stat-box h3 {
+            font-size: 2rem;
+            color: var(--primary-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-box p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .dashboard-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .donation-item {
+            border-left: 4px solid var(--primary-blue);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #F5F5F5;
+            border-radius: 5px;
+        }
+
+        .impact-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 20px;
+            font-weight: 500;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">CancerCare</a>
+        <ul class="nav-links">
+            <li><a href="donor-dashboard.html">My Dashboard</a></li>
+            <li><a href="campaigns.html">Browse Campaigns</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="#" id="logoutBtn">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <h1>Welcome, <span id="donorName">Donor</span>!</h1>
+            <p>Thank you for making a difference in the lives of cancer patients</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Dashboard Stats -->
+        <div class="dashboard-stats">
+            <div class="stat-box">
+                <h3 id="totalDonated">0 XAF</h3>
+                <p>Total Donated</p>
+            </div>
+            <div class="stat-box">
+                <h3 id="campaignsSupported">0</h3>
+                <p>Campaigns Supported</p>
+            </div>
+            <div class="stat-box">
+                <h3 id="patientsHelped">0</h3>
+                <p>Patients Helped</p>
+            </div>
+            <div class="stat-box">
+                <h3 id="lastDonation">--</h3>
+                <p>Last Donation</p>
+            </div>
+        </div>
+
+        <!-- Your Impact -->
+        <div class="dashboard-section">
+            <h2>Your Impact</h2>
+            <p style="color: #666; margin-bottom: 1rem;">
+                Your generosity is changing lives! Here's how you've made a difference:
+            </p>
+            <div id="impactBadges">
+                <span class="impact-badge">🎗️ Cancer Fighter</span>
+                <span class="impact-badge">❤️ Community Hero</span>
+            </div>
+        </div>
+
+        <!-- My Donations -->
+        <div class="dashboard-section">
+            <h2>My Donation History</h2>
+            <div id="donationHistory">
+                <p style="color: #666;">You haven't made any donations yet.</p>
+                <div class="action-buttons">
+                    <a href="campaigns.html" class="btn btn-primary">Browse Campaigns</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Campaigns -->
+        <div class="dashboard-section">
+            <h2>Campaigns You Might Like</h2>
+            <div id="recommendedCampaigns">
+                <p style="color: #666;">Loading campaigns...</p>
+            </div>
+        </div>
+
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CancerCare</h3>
+                <p>Supporting cancer patients in Yaoundé through community-driven fundraising and health education.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="campaigns.html">Active Campaigns</a></li>
+                    <li><a href="events.html">Health Events</a></li>
+                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get Involved</h4>
+                <ul>
+                    <li><a href="create-account.html">Create Account</a></li>
+                    <li><a href="donate.html">Make a Donation</a></li>
+                    <li><a href="verification.html">Patient Verification</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin: 0.5rem 0;">
+                    <strong>Phone:</strong><br>
+                    +237 680 480 725<br>
+                    +237 681 018 022
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Available Monday - Friday, 8AM - 5PM
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Security: Check donor authentication on page load
+        window.addEventListener('load', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+
+            if (!currentUser || currentUser.userType !== 'donor') {
+                showAlert('Please login as a donor to access this page', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+
+            // Display donor name
+            document.getElementById('donorName').textContent = currentUser.fullName || 'Donor';
+
+            // Load donor's dashboard data
+            loadDonorDashboard(currentUser);
+        });
+
+        // Load donor dashboard data
+        function loadDonorDashboard(user) {
+            const donations = JSON.parse(localStorage.getItem('donations') || '[]');
+            const userDonations = donations.filter(d => d.donorEmail === user.email);
+
+            // Calculate stats
+            const totalDonated = userDonations.reduce((sum, d) => sum + d.amount, 0);
+            const uniqueCampaigns = new Set(userDonations.map(d => d.campaignId));
+            const campaignsSupported = uniqueCampaigns.size;
+
+            // Update stats
+            document.getElementById('totalDonated').textContent = totalDonated.toLocaleString() + ' XAF';
+            document.getElementById('campaignsSupported').textContent = campaignsSupported;
+            document.getElementById('patientsHelped').textContent = campaignsSupported;
+
+            // Last donation date
+            if (userDonations.length > 0) {
+                const lastDonation = userDonations.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+                const daysSince = Math.floor((new Date() - new Date(lastDonation.date)) / (1000 * 60 * 60 * 24));
+                document.getElementById('lastDonation').textContent = daysSince === 0 ? 'Today' : `${daysSince} days ago`;
+            }
+
+            // Display donation history
+            displayDonationHistory(userDonations);
+
+            // Load recommended campaigns
+            loadRecommendedCampaigns();
+
+            // Update impact badges
+            updateImpactBadges(totalDonated, campaignsSupported);
+        }
+
+        // Display donation history
+        function displayDonationHistory(userDonations) {
+            const historyDiv = document.getElementById('donationHistory');
+
+            if (userDonations.length === 0) {
+                historyDiv.innerHTML = `
+                    <p style="color: #666;">You haven't made any donations yet.</p>
+                    <div class="action-buttons">
+                        <a href="campaigns.html" class="btn btn-primary">Browse Campaigns</a>
+                    </div>
+                `;
+                return;
+            }
+
+            const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+            const sortedDonations = userDonations.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            historyDiv.innerHTML = sortedDonations.map(donation => {
+                const campaign = campaigns.find(c => c.id === donation.campaignId);
+                return `
+                    <div class="donation-item">
+                        <h4>${campaign ? campaign.title : 'Campaign'}</h4>
+                        <p><strong>${donation.amount.toLocaleString()} XAF</strong> donated on ${new Date(donation.date).toLocaleDateString()}</p>
+                        ${donation.message ? `<p style="font-style: italic; color: #666;">"${donation.message}"</p>` : ''}
+                        ${campaign ? `<a href="campaign-details.html?id=${campaign.id}" class="btn btn-secondary" style="margin-top: 0.5rem;">View Campaign</a>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load recommended campaigns
+        function loadRecommendedCampaigns() {
+            const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+            const activeCampaigns = campaigns.filter(c => {
+                const deadline = new Date(c.deadline);
+                return deadline > new Date() && c.raised < c.goal;
+            }).slice(0, 3);
+
+            const recommendedDiv = document.getElementById('recommendedCampaigns');
+
+            if (activeCampaigns.length === 0) {
+                recommendedDiv.innerHTML = '<p style="color: #666;">No active campaigns at the moment.</p>';
+                return;
+            }
+
+            recommendedDiv.innerHTML = activeCampaigns.map(campaign => {
+                const progressPercent = Math.min((campaign.raised / campaign.goal) * 100, 100);
+                return `
+                    <div class="card" style="margin-bottom: 1rem;">
+                        <h3>${campaign.title}</h3>
+                        <p style="color: #666;">${campaign.description.substring(0, 100)}...</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <p style="margin-top: 0.5rem;"><strong>${campaign.raised.toLocaleString()} XAF</strong> raised of ${campaign.goal.toLocaleString()} XAF</p>
+                        <a href="campaign-details.html?id=${campaign.id}" class="btn btn-primary" style="margin-top: 1rem;">Support This Campaign</a>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update impact badges based on donation amount
+        function updateImpactBadges(totalDonated, campaignsSupported) {
+            const badgesDiv = document.getElementById('impactBadges');
+            let badges = [];
+
+            if (totalDonated >= 100000) {
+                badges.push('<span class="impact-badge">🌟 Platinum Supporter</span>');
+            } else if (totalDonated >= 50000) {
+                badges.push('<span class="impact-badge">💎 Gold Supporter</span>');
+            } else if (totalDonated >= 10000) {
+                badges.push('<span class="impact-badge">🥈 Silver Supporter</span>');
+            } else if (totalDonated > 0) {
+                badges.push('<span class="impact-badge">🎗️ Cancer Fighter</span>');
+            }
+
+            if (campaignsSupported >= 5) {
+                badges.push('<span class="impact-badge">🏆 Champion Donor</span>');
+            } else if (campaignsSupported >= 3) {
+                badges.push('<span class="impact-badge">⭐ Super Supporter</span>');
+            } else if (campaignsSupported > 0) {
+                badges.push('<span class="impact-badge">❤️ Community Hero</span>');
+            }
+
+            if (badges.length > 0) {
+                badgesDiv.innerHTML = badges.join('');
+            } else {
+                badgesDiv.innerHTML = '<p style="color: #666;">Make your first donation to earn impact badges!</p>';
+            }
+        }
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('currentUser');
+            showAlert('Logged out successfully', 'success');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

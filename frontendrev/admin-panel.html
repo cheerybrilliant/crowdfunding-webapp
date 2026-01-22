@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - CancerCare Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        
+        .pending-hospital {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            border-left: 5px solid #f39c12;
+        }
+        
+        .hospital-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .detail-item {
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .detail-item strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .btn-approve {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        
+        .btn-approve:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-reject {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        
+        .btn-reject:hover {
+            background-color: #c0392b;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .status-active {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .status-rejected {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #1976D2;
+        }
+
+        .tab-btn.active {
+            color: #1976D2;
+            border-bottom-color: #1976D2;
+        }
+
+        .tab-content {
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .data-table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background-color: #1976D2;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-view {
+            background-color: #1976D2;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background-color: #1565C0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">CancerCare Admin</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="admin-panel.html">Admin Panel</a></li>
+            <li><a href="#" onclick="logoutAdmin()" style="background-color: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 5px;">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="admin-container">
+        <h1 class="page-title">CancerCare Platform Admin Panel</h1>
+        <p class="text-center" style="margin-bottom: 2rem;">
+            Complete platform management and oversight
+        </p>
+
+        <!-- Login Section (shown if not logged in) -->
+        <div id="loginSection" class="form-container" style="max-width: 500px; margin: 0 auto;">
+            <h2>Admin Login</h2>
+            <form id="adminLoginForm" class="form">
+                <div class="form-group">
+                    <label for="adminUsername">Username:</label>
+                    <input type="text" id="adminUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Password:</label>
+                    <input type="password" id="adminPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+        </div>
+
+        <!-- Admin Panel (shown after login) -->
+        <div id="adminPanel" style="display: none;">
+            <!-- Tab Navigation -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid #e0e0e0; flex-wrap: wrap;">
+                <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="showTab('hospitals')">Hospitals</button>
+                <button class="tab-btn" onclick="showTab('campaigns')">Campaigns</button>
+                <button class="tab-btn" onclick="showTab('users')">Users</button>
+                <button class="tab-btn" onclick="showTab('events')">Events</button>
+                <button class="tab-btn" onclick="showTab('donations')">Donations</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overviewTab" class="tab-content">
+                <h2 class="page-title">Platform Overview</h2>
+
+                <!-- Overall Statistics -->
+                <div class="cards-container" style="margin-bottom: 2rem;">
+                    <div class="card" style="text-align: center;">
+                        <h3 style="color: #1976D2; font-size: 2rem; margin: 0;" id="totalUsers">0</h3>
+                        <p style="margin: 0.5rem 0 0 0;">Total Users</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h3 style="color: #2ecc71; font-size: 2rem; margin: 0;" id="totalCampaigns">0</h3>
+                        <p style="margin: 0.5rem 0 0 0;">Active Campaigns</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h3 style="color: #f39c12; font-size: 2rem; margin: 0;" id="totalDonations">0</h3>
+                        <p style="margin: 0.5rem 0 0 0;">Total Donations</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h3 style="color: #9b59b6; font-size: 2rem; margin: 0;" id="totalEvents">0</h3>
+                        <p style="margin: 0.5rem 0 0 0;">Health Events</p>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <h3 class="page-title">Recent Activity</h3>
+                <div id="recentActivity" class="card">
+                    <!-- Recent activity will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Hospitals Tab -->
+            <div id="hospitalsTab" class="tab-content" style="display: none;">
+                <h2 class="page-title">Hospital Management</h2>
+
+                <!-- Hospital Statistics -->
+                <div class="cards-container" style="margin-bottom: 2rem;">
+                    <div class="card" style="text-align: center;">
+                        <h3 style="color: #f39c12; font-size: 2rem; margin: 0;" id="pendingCount">0</h3>
+                        <p style="margin: 0.5rem 0 0 0;">Pending Approvals</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h3 style="color: #2ecc71; font-size: 2rem; margin: 0;" id="activeCount">0</h3>
+                        <p style="margin: 0.5rem 0 0 0;">Active Hospitals</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h3 style="color: #e74c3c; font-size: 2rem; margin: 0;" id="rejectedCount">0</h3>
+                        <p style="margin: 0.5rem 0 0 0;">Rejected</p>
+                    </div>
+                </div>
+
+                <!-- Pending Hospitals -->
+                <h3 class="page-title">Pending Hospital Registrations</h3>
+                <div id="pendingHospitalsList">
+                    <!-- Pending hospitals will be loaded here -->
+                </div>
+
+                <!-- All Hospitals -->
+                <h3 class="page-title mt-2">All Registered Hospitals</h3>
+                <div id="allHospitalsList">
+                    <!-- All hospitals will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Campaigns Tab -->
+            <div id="campaignsTab" class="tab-content" style="display: none;">
+                <h2 class="page-title">Campaign Management</h2>
+                <div id="campaignsList">
+                    <!-- Campaigns will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content" style="display: none;">
+                <h2 class="page-title">User Management</h2>
+                <div id="usersList">
+                    <!-- Users will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Events Tab -->
+            <div id="eventsTab" class="tab-content" style="display: none;">
+                <h2 class="page-title">Health Events Management</h2>
+                <div id="eventsList">
+                    <!-- Events will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Donations Tab -->
+            <div id="donationsTab" class="tab-content" style="display: none;">
+                <h2 class="page-title">Donation History</h2>
+                <div id="donationsList">
+                    <!-- Donations will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Admin credentials (in production, this would be server-side)
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'CancerCare2026';
+
+        // Check if admin is logged in
+        function checkAdminLogin() {
+            const adminSession = localStorage.getItem('adminSession');
+            if (adminSession) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadHospitals();
+            } else {
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('adminPanel').style.display = 'none';
+            }
+        }
+
+        // Handle admin login
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                localStorage.setItem('adminSession', 'true');
+                showAlert('Login successful!', 'success');
+                checkAdminLogin();
+            } else {
+                showAlert('Invalid credentials', 'error');
+            }
+        });
+
+        // Logout admin
+        function logoutAdmin() {
+            localStorage.removeItem('adminSession');
+            window.location.reload();
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').style.display = 'block';
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            // Load data for the tab
+            if (tabName === 'overview') loadOverview();
+            if (tabName === 'hospitals') loadHospitals();
+            if (tabName === 'campaigns') loadCampaigns();
+            if (tabName === 'users') loadUsers();
+            if (tabName === 'events') loadEvents();
+            if (tabName === 'donations') loadDonations();
+        }
+
+        // Load overview data
+        function loadOverview() {
+            const users = JSON.parse(localStorage.getItem('userDatabase') || '[]');
+            const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+            const events = JSON.parse(localStorage.getItem('events') || '[]');
+            const eventDonations = JSON.parse(localStorage.getItem('eventDonations') || '[]');
+
+            // Count campaign donations
+            let totalCampaignDonations = 0;
+            campaigns.forEach(campaign => {
+                totalCampaignDonations += (campaign.donations || []).length;
+            });
+
+            const totalDonations = totalCampaignDonations + eventDonations.length;
+
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('totalCampaigns').textContent = campaigns.length;
+            document.getElementById('totalDonations').textContent = totalDonations;
+            document.getElementById('totalEvents').textContent = events.length;
+
+            // Display recent activity
+            displayRecentActivity();
+        }
+
+        // Display recent activity
+        function displayRecentActivity() {
+            const container = document.getElementById('recentActivity');
+            const users = JSON.parse(localStorage.getItem('userDatabase') || '[]');
+            const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+            const hospitals = JSON.parse(localStorage.getItem('hospitals') || '[]');
+
+            let activities = [];
+
+            // Add recent users
+            users.slice(-5).reverse().forEach(user => {
+                activities.push({
+                    type: 'User Registration',
+                    description: `${user.fullName} registered as ${user.userType}`,
+                    date: user.registrationDate || new Date().toISOString()
+                });
+            });
+
+            // Add recent campaigns
+            campaigns.slice(-5).reverse().forEach(campaign => {
+                activities.push({
+                    type: 'New Campaign',
+                    description: `Campaign created for ${campaign.patientName}`,
+                    date: campaign.createdDate || new Date().toISOString()
+                });
+            });
+
+            // Add recent hospitals
+            hospitals.slice(-3).reverse().forEach(hospital => {
+                activities.push({
+                    type: 'Hospital Registration',
+                    description: `${hospital.hospitalName} registered (${hospital.status})`,
+                    date: hospital.registeredDate
+                });
+            });
+
+            // Sort by date
+            activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+            activities = activities.slice(0, 10);
+
+            if (activities.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">No recent activity</p>';
+                return;
+            }
+
+            let html = '<div style="padding: 1rem;">';
+            activities.forEach(activity => {
+                html += `
+                    <div style="padding: 1rem; border-bottom: 1px solid #e0e0e0;">
+                        <strong style="color: #1976D2;">${activity.type}</strong>
+                        <p style="margin: 0.5rem 0; color: #666;">${activity.description}</p>
+                        <small style="color: #999;">${new Date(activity.date).toLocaleString()}</small>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Load all hospitals
+        function loadHospitals() {
+            const hospitals = JSON.parse(localStorage.getItem('hospitals') || '[]');
+
+            // Update statistics
+            const pending = hospitals.filter(h => h.status === 'pending').length;
+            const active = hospitals.filter(h => h.status === 'active').length;
+            const rejected = hospitals.filter(h => h.status === 'rejected').length;
+
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('activeCount').textContent = active;
+            document.getElementById('rejectedCount').textContent = rejected;
+
+            // Display pending hospitals
+            displayPendingHospitals(hospitals);
+
+            // Display all hospitals
+            displayAllHospitals(hospitals);
+        }
+
+        // Display pending hospitals
+        function displayPendingHospitals(hospitals) {
+            const container = document.getElementById('pendingHospitalsList');
+            const pending = hospitals.filter(h => h.status === 'pending');
+
+            if (pending.length === 0) {
+                container.innerHTML = '<div class="card"><p style="text-align: center; color: #666;">No pending hospital registrations</p></div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            pending.forEach(hospital => {
+                const hospitalHTML = `
+                    <div class="pending-hospital">
+                        <h3 style="color: #2c3e50; margin-top: 0;">${hospital.hospitalName}</h3>
+                        <span class="status-badge status-pending">Pending Approval</span>
+
+                        <div class="hospital-details">
+                            <div class="detail-item">
+                                <strong>Hospital ID:</strong>
+                                ${hospital.hospitalId}
+                            </div>
+                            <div class="detail-item">
+                                <strong>Address:</strong>
+                                ${hospital.address}
+                            </div>
+                            <div class="detail-item">
+                                <strong>Phone:</strong>
+                                +237 ${hospital.phone}
+                            </div>
+                            <div class="detail-item">
+                                <strong>Admin Name:</strong>
+                                ${hospital.adminName}
+                            </div>
+                            <div class="detail-item">
+                                <strong>Admin Email:</strong>
+                                ${hospital.adminEmail}
+                            </div>
+                            <div class="detail-item">
+                                <strong>Registered Date:</strong>
+                                ${new Date(hospital.registeredDate).toLocaleDateString()}
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn-approve" onclick="approveHospital('${hospital.hospitalId}')">
+                                Approve Hospital
+                            </button>
+                            <button class="btn-reject" onclick="rejectHospital('${hospital.hospitalId}')">
+                                Reject
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += hospitalHTML;
+            });
+        }
+
+        // Display all hospitals
+        function displayAllHospitals(hospitals) {
+            const container = document.getElementById('allHospitalsList');
+
+            if (hospitals.length === 0) {
+                container.innerHTML = '<div class="card"><p style="text-align: center; color: #666;">No hospitals registered yet</p></div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            hospitals.forEach(hospital => {
+                const statusClass = hospital.status === 'active' ? 'status-active' :
+                                  hospital.status === 'pending' ? 'status-pending' : 'status-rejected';
+                const statusText = hospital.status.charAt(0).toUpperCase() + hospital.status.slice(1);
+
+                const hospitalHTML = `
+                    <div class="pending-hospital" style="border-left-color: ${hospital.status === 'active' ? '#2ecc71' : hospital.status === 'rejected' ? '#e74c3c' : '#f39c12'};">
+                        <h3 style="color: #2c3e50; margin-top: 0;">${hospital.hospitalName}</h3>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+
+                        <div class="hospital-details">
+                            <div class="detail-item">
+                                <strong>Hospital ID:</strong>
+                                ${hospital.hospitalId}
+                            </div>
+                            <div class="detail-item">
+                                <strong>Address:</strong>
+                                ${hospital.address}
+                            </div>
+                            <div class="detail-item">
+                                <strong>Phone:</strong>
+                                +237 ${hospital.phone}
+                            </div>
+                            <div class="detail-item">
+                                <strong>Status:</strong>
+                                ${statusText}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += hospitalHTML;
+            });
+        }
+
+        // Approve hospital
+        function approveHospital(hospitalId) {
+            if (!confirm('Are you sure you want to approve this hospital?')) {
+                return;
+            }
+
+            const hospitals = JSON.parse(localStorage.getItem('hospitals') || '[]');
+            const hospital = hospitals.find(h => h.hospitalId === hospitalId);
+
+            if (hospital) {
+                hospital.status = 'active';
+                hospital.verified = true;
+                localStorage.setItem('hospitals', JSON.stringify(hospitals));
+
+                showAlert('Hospital approved successfully!', 'success');
+                loadHospitals();
+            }
+        }
+
+        // Reject hospital
+        function rejectHospital(hospitalId) {
+            if (!confirm('Are you sure you want to reject this hospital registration?')) {
+                return;
+            }
+
+            const hospitals = JSON.parse(localStorage.getItem('hospitals') || '[]');
+            const hospital = hospitals.find(h => h.hospitalId === hospitalId);
+
+            if (hospital) {
+                hospital.status = 'rejected';
+                hospital.verified = false;
+                localStorage.setItem('hospitals', JSON.stringify(hospitals));
+
+                showAlert('Hospital registration rejected', 'success');
+                loadHospitals();
+            }
+        }
+
+        // Load campaigns
+        function loadCampaigns() {
+            const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+            const container = document.getElementById('campaignsList');
+
+            if (campaigns.length === 0) {
+                container.innerHTML = '<div class="card"><p style="text-align: center; color: #666;">No campaigns created yet</p></div>';
+                return;
+            }
+
+            let html = '<div class="data-table"><table>';
+            html += `
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Hospital</th>
+                        <th>Goal Amount</th>
+                        <th>Raised</th>
+                        <th>Progress</th>
+                        <th>Donors</th>
+                        <th>Created Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            campaigns.forEach(campaign => {
+                const progress = ((campaign.raisedAmount / campaign.goalAmount) * 100).toFixed(1);
+                const donorCount = (campaign.donations || []).length;
+
+                html += `
+                    <tr>
+                        <td><strong>${campaign.patientName}</strong></td>
+                        <td>${campaign.hospitalName}</td>
+                        <td>${campaign.goalAmount.toLocaleString()} XAF</td>
+                        <td>${campaign.raisedAmount.toLocaleString()} XAF</td>
+                        <td>${progress}%</td>
+                        <td>${donorCount}</td>
+                        <td>${new Date(campaign.createdDate).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn-small btn-view" onclick="viewCampaignDetails('${campaign.id}')">View</button>
+                            <button class="btn-small btn-delete" onclick="deleteCampaign('${campaign.id}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Load users
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('userDatabase') || '[]');
+            const container = document.getElementById('usersList');
+
+            if (users.length === 0) {
+                container.innerHTML = '<div class="card"><p style="text-align: center; color: #666;">No users registered yet</p></div>';
+                return;
+            }
+
+            let html = '<div class="data-table"><table>';
+            html += `
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>User Type</th>
+                        <th>Registration Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            users.forEach(user => {
+                html += `
+                    <tr>
+                        <td><strong>${user.fullName}</strong></td>
+                        <td>${user.email}</td>
+                        <td>+237 ${user.phone}</td>
+                        <td><span class="status-badge status-active">${user.userType}</span></td>
+                        <td>${new Date(user.registrationDate).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn-small btn-delete" onclick="deleteUser('${user.email}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Load events
+        function loadEvents() {
+            const events = JSON.parse(localStorage.getItem('events') || '[]');
+            const container = document.getElementById('eventsList');
+
+            if (events.length === 0) {
+                container.innerHTML = '<div class="card"><p style="text-align: center; color: #666;">No events available</p></div>';
+                return;
+            }
+
+            let html = '<div class="data-table"><table>';
+            html += `
+                <thead>
+                    <tr>
+                        <th>Event Title</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Location</th>
+                        <th>Goal Amount</th>
+                        <th>Raised</th>
+                        <th>Progress</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            events.forEach(event => {
+                const progress = ((event.raisedAmount / event.goalAmount) * 100).toFixed(1);
+
+                html += `
+                    <tr>
+                        <td><strong>${event.title}</strong></td>
+                        <td>${new Date(event.date).toLocaleDateString()}</td>
+                        <td>${event.type}</td>
+                        <td>${event.location}</td>
+                        <td>${event.goalAmount.toLocaleString()} XAF</td>
+                        <td>${event.raisedAmount.toLocaleString()} XAF</td>
+                        <td>${progress}%</td>
+                        <td>
+                            <button class="btn-small btn-delete" onclick="deleteEvent(${event.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Load donations
+        function loadDonations() {
+            const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+            const eventDonations = JSON.parse(localStorage.getItem('eventDonations') || '[]');
+            const container = document.getElementById('donationsList');
+
+            let allDonations = [];
+
+            // Get campaign donations
+            campaigns.forEach(campaign => {
+                if (campaign.donations) {
+                    campaign.donations.forEach(donation => {
+                        allDonations.push({
+                            ...donation,
+                            type: 'Campaign',
+                            target: campaign.patientName
+                        });
+                    });
+                }
+            });
+
+            // Get event donations
+            eventDonations.forEach(donation => {
+                const events = JSON.parse(localStorage.getItem('events') || '[]');
+                const event = events.find(e => e.id === donation.eventId);
+                allDonations.push({
+                    ...donation,
+                    type: 'Event',
+                    target: event ? event.title : 'Unknown Event'
+                });
+            });
+
+            if (allDonations.length === 0) {
+                container.innerHTML = '<div class="card"><p style="text-align: center; color: #666;">No donations yet</p></div>';
+                return;
+            }
+
+            // Sort by date (newest first)
+            allDonations.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            let html = '<div class="data-table"><table>';
+            html += `
+                <thead>
+                    <tr>
+                        <th>Donor Name</th>
+                        <th>Type</th>
+                        <th>Target</th>
+                        <th>Amount</th>
+                        <th>Payment Method</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            allDonations.forEach(donation => {
+                html += `
+                    <tr>
+                        <td><strong>${donation.donorName}</strong></td>
+                        <td><span class="status-badge ${donation.type === 'Campaign' ? 'status-active' : 'status-pending'}">${donation.type}</span></td>
+                        <td>${donation.target}</td>
+                        <td>${donation.amount.toLocaleString()} XAF</td>
+                        <td>${donation.paymentMethod}</td>
+                        <td>${new Date(donation.date).toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Delete campaign
+        function deleteCampaign(campaignId) {
+            if (!confirm('Are you sure you want to delete this campaign? This action cannot be undone.')) {
+                return;
+            }
+
+            let campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+            campaigns = campaigns.filter(c => c.id !== campaignId);
+            localStorage.setItem('campaigns', JSON.stringify(campaigns));
+
+            showAlert('Campaign deleted successfully', 'success');
+            loadCampaigns();
+            loadOverview();
+        }
+
+        // View campaign details
+        function viewCampaignDetails(campaignId) {
+            window.open('campaign-details.html?id=' + campaignId, '_blank');
+        }
+
+        // Delete user
+        function deleteUser(email) {
+            if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('userDatabase') || '[]');
+            users = users.filter(u => u.email !== email);
+            localStorage.setItem('userDatabase', JSON.stringify(users));
+
+            showAlert('User deleted successfully', 'success');
+            loadUsers();
+            loadOverview();
+        }
+
+        // Delete event
+        function deleteEvent(eventId) {
+            if (!confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+                return;
+            }
+
+            let events = JSON.parse(localStorage.getItem('events') || '[]');
+            events = events.filter(e => e.id !== eventId);
+            localStorage.setItem('events', JSON.stringify(events));
+
+            showAlert('Event deleted successfully', 'success');
+            loadEvents();
+            loadOverview();
+        }
+
+        // Check login on page load
+        window.addEventListener('load', function() {
+            checkAdminLogin();
+            // Load overview by default
+            if (localStorage.getItem('adminSession')) {
+                loadOverview();
+            }
+        });
+    </script>
+

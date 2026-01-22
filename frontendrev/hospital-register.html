@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Admin Registration - Cancer Patient Support Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">CancerCare</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="campaigns.html">Campaigns</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="create-account.html">Create Account</a></li>
+            <li><a href="hospital-login.html" style="background-color: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 5px; border: 1px solid white;">Hospital Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="form-container">
+            <h1 class="page-title">Hospital Admin Registration</h1>
+            <p class="text-center" style="margin-bottom: 2rem;">
+                Register your hospital to verify patients and manage campaigns
+            </p>
+
+            <!-- Hospital Registration Form -->
+            <form id="hospitalRegisterForm" class="form">
+                <div class="form-group">
+                    <label for="hospitalName">Hospital Name *</label>
+                    <input
+                        type="text"
+                        id="hospitalName"
+                        name="hospitalName"
+                        placeholder="e.g., Yaoundé General Hospital"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="hospitalId">Hospital ID *</label>
+                    <input
+                        type="text"
+                        id="hospitalId"
+                        name="hospitalId"
+                        placeholder="e.g., HOSP003, YGH001"
+                        required
+                    >
+                    <small style="color: #666;">Choose a unique ID for your hospital (letters and numbers only)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="hospitalAddress">Hospital Address *</label>
+                    <input
+                        type="text"
+                        id="hospitalAddress"
+                        name="hospitalAddress"
+                        placeholder="Enter hospital address in Yaoundé"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="hospitalPhone">Hospital Phone *</label>
+                    <input
+                        type="tel"
+                        id="hospitalPhone"
+                        name="hospitalPhone"
+                        placeholder="e.g., 677123456"
+                        required
+                    >
+                    <small style="color: #666;">Cameroon phone number (9 digits starting with 6)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminName">Admin Name *</label>
+                    <input
+                        type="text"
+                        id="adminName"
+                        name="adminName"
+                        placeholder="Enter your full name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="adminEmail">Admin Email *</label>
+                    <input
+                        type="email"
+                        id="adminEmail"
+                        name="adminEmail"
+                        placeholder="admin@hospital.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Create a strong password"
+                        required
+                    >
+                    <small style="color: #666;">Must be 8+ characters with uppercase, lowercase, number, and symbol</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password *</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        placeholder="Re-enter your password"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="verificationCode">Verification Code *</label>
+                    <input
+                        type="text"
+                        id="verificationCode"
+                        name="verificationCode"
+                        placeholder="Enter verification code"
+                        required
+                    >
+                    <small style="color: #666;">Contact CancerCare admin to get your verification code</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Register Hospital</button>
+            </form>
+
+            <!-- Links -->
+            <div class="text-center mt-2">
+                <p>Already registered? <a href="hospital-login.html">Login Here</a></p>
+                <p>Not a hospital? <a href="create-account.html">Create User Account</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CancerCare</h3>
+                <p>Supporting cancer patients in Yaoundé through community-driven fundraising and health education.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="campaigns.html">Active Campaigns</a></li>
+                    <li><a href="events.html">Health Events</a></li>
+                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get Involved</h4>
+                <ul>
+                    <li><a href="create-account.html">Create Account</a></li>
+                    <li><a href="donate.html">Make a Donation</a></li>
+                    <li><a href="verification.html">Patient Verification</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin: 0.5rem 0;">
+                    <strong>Phone:</strong><br>
+                    +237 680 480 725<br>
+                    +237 681 018 022
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Available Monday - Friday, 8AM - 5PM
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Verification code (in production, this would be server-side)
+        const VALID_VERIFICATION_CODE = "CANCER2026";
+
+        // Handle hospital registration form submission
+        document.getElementById('hospitalRegisterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get and sanitize form values
+            const hospitalName = sanitizeInput(document.getElementById('hospitalName').value);
+            const hospitalId = sanitizeInput(document.getElementById('hospitalId').value.toUpperCase());
+            const hospitalAddress = sanitizeInput(document.getElementById('hospitalAddress').value);
+            const hospitalPhone = sanitizeInput(document.getElementById('hospitalPhone').value);
+            const adminName = sanitizeInput(document.getElementById('adminName').value);
+            const adminEmail = sanitizeInput(document.getElementById('adminEmail').value);
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const verificationCode = sanitizeInput(document.getElementById('verificationCode').value);
+
+            // Validate all fields are filled
+            if (!hospitalName || !hospitalId || !hospitalAddress || !hospitalPhone ||
+                !adminName || !adminEmail || !password || !confirmPassword || !verificationCode) {
+                showAlert('Please fill in all required fields', 'error');
+                return;
+            }
+
+            // Validate verification code
+            if (verificationCode !== VALID_VERIFICATION_CODE) {
+                showAlert('Invalid verification code. Please contact CancerCare admin.', 'error');
+                return;
+            }
+
+            // Validate hospital ID format (letters and numbers only)
+            if (!/^[A-Z0-9]+$/.test(hospitalId)) {
+                showAlert('Hospital ID must contain only letters and numbers', 'error');
+                return;
+            }
+
+            // Validate phone number (Cameroon format)
+            if (!/^6\d{8}$/.test(hospitalPhone)) {
+                showAlert('Please enter a valid Cameroon phone number (9 digits starting with 6)', 'error');
+                return;
+            }
+
+            // Validate email
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(adminEmail)) {
+                showAlert('Please enter a valid email address', 'error');
+                return;
+            }
+
+            // Validate password strength
+            const passwordValidation = validatePassword(password);
+            if (!passwordValidation.isValid) {
+                showAlert(passwordValidation.message, 'error');
+                return;
+            }
+
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match', 'error');
+                return;
+            }
+
+            // Check if hospital ID already exists
+            const hospitals = JSON.parse(localStorage.getItem('hospitals') || '[]');
+            if (hospitals.some(h => h.hospitalId === hospitalId)) {
+                showAlert('This Hospital ID is already registered', 'error');
+                return;
+            }
+
+            // Create hospital account (pending approval)
+            const hospitalAccount = {
+                hospitalId: hospitalId,
+                hospitalName: hospitalName,
+                address: hospitalAddress,
+                phone: hospitalPhone,
+                adminName: adminName,
+                adminEmail: adminEmail,
+                password: hashPassword(password),
+                registeredDate: new Date().toISOString(),
+                status: 'pending', // Changed from 'active' to 'pending'
+                verified: false, // Not verified until admin approves
+                verifiedPatients: [],
+                services: 'Oncology Department, Cancer Screening, Patient Verification' // Default services
+            };
+
+            // Save to localStorage
+            hospitals.push(hospitalAccount);
+            localStorage.setItem('hospitals', JSON.stringify(hospitals));
+
+            // Also add to hospitalCredentials in script.js format
+            const credentials = JSON.parse(localStorage.getItem('hospitalCredentials') || '{}');
+            credentials[hospitalId] = {
+                password: hashPassword(password),
+                name: hospitalName
+            };
+            localStorage.setItem('hospitalCredentials', JSON.stringify(credentials));
+
+            showAlert('Hospital registration submitted successfully! Your account is pending admin approval. You will be contacted at ' + adminEmail + ' once approved.', 'success');
+
+            // Clear form
+            document.getElementById('hospitalRegisterForm').reset();
+
+            // Redirect to home page after 4 seconds
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 4000);
+        });
+    </script>
+
+
