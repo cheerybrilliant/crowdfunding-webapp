@@ -57,4 +57,4 @@ export const loginHospitalController = async (req: Request, res: Response) => {
   } catch (err: any) {
     res.status(401).json({ message: err.message });
   }
-}];
+};
