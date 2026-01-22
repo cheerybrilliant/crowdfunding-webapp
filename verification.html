@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Verification - Cancer Patient Support Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">CancerCare</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="campaigns.html">Campaigns</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="create-account.html">Create Account</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1 class="page-title">Patient Verification</h1>
+
+        <!-- Verification Form -->
+        <div class="form-container">
+            <div class="alert alert-info">
+                <strong>Welcome!</strong> To ensure the authenticity of patient campaigns, 
+                we require verification. Please upload the following documents for hospital review.
+            </div>
+
+            <form id="verificationForm">
+                <!-- Profile Picture Upload -->
+                <div class="form-group">
+                    <label for="profilePicture">Upload Profile Picture:</label>
+                    <input type="file" id="profilePicture" name="profilePicture" accept="image/*" required>
+                    <small style="color: #666;">Please upload a clear photo of yourself</small>
+                </div>
+
+                <!-- Video Upload -->
+                <div class="form-group">
+                    <label for="videoUpload">Upload Short Live Video:</label>
+                    <input type="file" id="videoUpload" name="videoUpload" accept="video/*" required>
+                    <small style="color: #666;">
+                        Record a short video (30-60 seconds) introducing yourself and explaining your situation
+                    </small>
+                </div>
+
+                <!-- Medical Documents (Optional) -->
+                <div class="form-group">
+                    <label for="medicalDocs">Upload Medical Documents (Optional):</label>
+                    <input type="file" id="medicalDocs" name="medicalDocs" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                    <small style="color: #666;">
+                        You can upload medical reports, diagnosis letters, or hospital bills
+                    </small>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="form-group">
+                    <label for="additionalInfo">Additional Information:</label>
+                    <textarea id="additionalInfo" name="additionalInfo" rows="5" 
+                              placeholder="Tell us more about your situation, treatment needs, and how the funds will be used..."></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit for Verification</button>
+            </form>
+
+            <!-- Disclaimer -->
+            <div class="alert alert-info mt-2">
+                <strong>Important:</strong> Uploaded media helps hospitals review and verify patient requests. 
+                Your information will be kept confidential and only used for verification purposes. 
+                Once verified, you can create your fundraising campaign.
+            </div>
+
+            <!-- What Happens Next -->
+            <div class="card mt-2">
+                <h3>What Happens Next?</h3>
+                <ol style="line-height: 2;">
+                    <li>Your documents will be reviewed by our partner hospitals</li>
+                    <li>Verification typically takes 2-3 business days</li>
+                    <li>You will receive an email notification once verified</li>
+                    <li>After verification, you can create your fundraising campaign</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Handle form submission
+        document.getElementById('verificationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const profilePicture = document.getElementById('profilePicture').files[0];
+            const videoUpload = document.getElementById('videoUpload').files[0];
+            const additionalInfo = document.getElementById('additionalInfo').value;
+            
+            // Validate file uploads
+            if (!profilePicture) {
+                showAlert('Please upload a profile picture', 'error');
+                return;
+            }
+            
+            if (!videoUpload) {
+                showAlert('Please upload a verification video', 'error');
+                return;
+            }
+            
+            // Check file sizes (example: max 10MB for images, 50MB for videos)
+            if (profilePicture.size > 10 * 1024 * 1024) {
+                showAlert('Profile picture must be less than 10MB', 'error');
+                return;
+            }
+            
+            if (videoUpload.size > 50 * 1024 * 1024) {
+                showAlert('Video must be less than 50MB', 'error');
+                return;
+            }
+            
+            // In a real application, files would be uploaded to a server
+            // For this demo, we'll just show a success message
+            
+            showAlert('Verification documents submitted successfully! You will receive an email once your account is verified.', 'success');
+            
+            // Clear form
+            document.getElementById('verificationForm').reset();
+            
+            // Redirect to home page after delay
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000);
+        });
+        
+        // Check if user is logged in and is a patient
+        window.addEventListener('load', function() {
+            const user = getCurrentUser();
+            if (!user) {
+                showAlert('Please create an account first', 'error');
+                setTimeout(() => {
+                    window.location.href = 'create-account.html';
+                }, 2000);
+            } else if (user.accountType !== 'patient') {
+                showAlert('This page is only for patient accounts', 'error');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
+
