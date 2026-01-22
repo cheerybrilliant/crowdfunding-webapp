@@ -60,6 +60,16 @@
                 <div class="form-group">
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password" required>
+                    <div id="passwordRequirements" style="margin-top: 10px; font-size: 14px;">
+                        <p style="margin: 5px 0; color: #666;"><strong>Password must contain:</strong></p>
+                        <div style="margin-left: 15px;">
+                            <p id="req-length" style="margin: 3px 0; color: red;">✗ At least 8 characters</p>
+                            <p id="req-uppercase" style="margin: 3px 0; color: red;">✗ Uppercase letter (A-Z)</p>
+                            <p id="req-lowercase" style="margin: 3px 0; color: red;">✗ Lowercase letter (a-z)</p>
+                            <p id="req-number" style="margin: 3px 0; color: red;">✗ Number (0-9)</p>
+                            <p id="req-special" style="margin: 3px 0; color: red;">✗ Special character (!@#$%^&*)</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Confirm Password -->
@@ -92,6 +102,73 @@
 
     <script src="script.js"></script>
     <script>
+        // Password validation function
+        function validatePasswordStrength(password) {
+            const requirements = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+            };
+            return requirements;
+        }
+
+        // Update password requirement indicators in real-time
+        document.getElementById('password').addEventListener('input', function() {
+            const requirements = validatePasswordStrength(this.value);
+            
+            // Update length requirement
+            const lengthReq = document.getElementById('req-length');
+            if (requirements.length) {
+                lengthReq.style.color = 'green';
+                lengthReq.textContent = '✓ At least 8 characters';
+            } else {
+                lengthReq.style.color = 'red';
+                lengthReq.textContent = '✗ At least 8 characters';
+            }
+            
+            // Update uppercase requirement
+            const uppercaseReq = document.getElementById('req-uppercase');
+            if (requirements.uppercase) {
+                uppercaseReq.style.color = 'green';
+                uppercaseReq.textContent = '✓ Uppercase letter (A-Z)';
+            } else {
+                uppercaseReq.style.color = 'red';
+                uppercaseReq.textContent = '✗ Uppercase letter (A-Z)';
+            }
+            
+            // Update lowercase requirement
+            const lowercaseReq = document.getElementById('req-lowercase');
+            if (requirements.lowercase) {
+                lowercaseReq.style.color = 'green';
+                lowercaseReq.textContent = '✓ Lowercase letter (a-z)';
+            } else {
+                lowercaseReq.style.color = 'red';
+                lowercaseReq.textContent = '✗ Lowercase letter (a-z)';
+            }
+            
+            // Update number requirement
+            const numberReq = document.getElementById('req-number');
+            if (requirements.number) {
+                numberReq.style.color = 'green';
+                numberReq.textContent = '✓ Number (0-9)';
+            } else {
+                numberReq.style.color = 'red';
+                numberReq.textContent = '✗ Number (0-9)';
+            }
+            
+            // Update special character requirement
+            const specialReq = document.getElementById('req-special');
+            if (requirements.special) {
+                specialReq.style.color = 'green';
+                specialReq.textContent = '✓ Special character (!@#$%^&*)';
+            } else {
+                specialReq.style.color = 'red';
+                specialReq.textContent = '✗ Special character (!@#$%^&*)';
+            }
+        });
+
         // Handle form submission
         document.getElementById('createAccountForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -109,9 +186,12 @@
                 return;
             }
             
-            // Validate password
-            if (!validatePassword(password)) {
-                showAlert('Password must be at least 6 characters long', 'error');
+            // Validate password strength
+            const passwordRequirements = validatePasswordStrength(password);
+            if (!passwordRequirements.length || !passwordRequirements.uppercase || 
+                !passwordRequirements.lowercase || !passwordRequirements.number || 
+                !passwordRequirements.special) {
+                showAlert('Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character', 'error');
                 return;
             }
             
