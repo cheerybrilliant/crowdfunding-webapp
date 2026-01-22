@@ -18,7 +18,7 @@
             <li><a href="about.html">About Us</a></li>
             <li><a href="login.html">Login</a></li>
             <li><a href="create-account.html">Create Account</a></li>
-            <li><a href="hospital-login.html" style="background-color: #e74c3c; padding: 0.5rem 1rem; border-radius: 5px;">Hospital Login</a></li>
+            <li><a href="hospital-login.html" style="background-color: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 5px; border: 1px solid white;">Hospital Login</a></li>
         </ul>
     </nav>
 
@@ -87,14 +87,57 @@
 
     <!-- Footer -->
     <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CancerCare</h3>
+                <p>Supporting cancer patients in Yaoundé through community-driven fundraising and health education.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="campaigns.html">Active Campaigns</a></li>
+                    <li><a href="events.html">Health Events</a></li>
+                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get Involved</h4>
+                <ul>
+                    <li><a href="create-account.html">Create Account</a></li>
+                    <li><a href="donate.html">Make a Donation</a></li>
+                    <li><a href="verification.html">Patient Verification</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin: 0.5rem 0;">
+                    <strong>Phone:</strong><br>
+                    +237 680 480 725<br>
+                    +237 681 018 022
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Available Monday - Friday, 8AM - 5PM
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>
     <script>
-        // Handle form submission
+        // Handle form submission with security
         document.getElementById('createAccountForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Rate limiting check
+            if (!rateLimiter.checkLimit('createAccount')) {
+                const remainingTime = rateLimiter.getRemainingTime('createAccount');
+                showAlert(`Too many attempts. Please wait ${remainingTime} seconds before trying again.`, 'error');
+                return;
+            }
             
             // Get form values
             const fullName = document.getElementById('fullName').value;
@@ -102,6 +145,12 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const accountType = document.querySelector('input[name="accountType"]:checked').value;
+
+            // Validate and sanitize inputs
+            if (!fullName || !email || !password) {
+                showAlert('All fields are required', 'error');
+                return;
+            }
             
             // Validate email
             if (!validateEmail(email)) {
@@ -109,9 +158,10 @@
                 return;
             }
             
-            // Validate password
-            if (!validatePassword(password)) {
-                showAlert('Password must be at least 6 characters long', 'error');
+            // Validate password strength
+            const passwordValidation = validatePassword(password);
+            if (!passwordValidation.isValid) {
+                showAlert(passwordValidation.message, 'error');
                 return;
             }
             
@@ -121,15 +171,25 @@
                 return;
             }
             
-            // Create user object
+            // Check if email already exists
+            const existingUser = userDatabase.find(u => u.email === email);
+            if (existingUser) {
+                showAlert('An account with this email already exists', 'error');
+                return;
+            }
+
+            // Create user object with password for hashing
             const userData = {
                 fullName: fullName,
                 email: email,
+                phone: phone,
+                password: password, // Will be hashed in saveUserData
                 accountType: accountType,
+                userType: accountType, // Add userType for consistency
                 verified: accountType === 'donor' ? true : false
             };
             
-            // Save user data
+            // Save user data securely
             saveUserData(userData);
             
             // Show success message
@@ -140,7 +200,8 @@
                 if (accountType === 'patient') {
                     window.location.href = 'verification.html';
                 } else {
-                    window.location.href = 'index.html';
+                    // Redirect donor to their dashboard
+                    window.location.href = 'donor-dashboard.html';
                 }
             }, 2000);
         });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - Cancer Patient Support Platform</title>
+    <title>Hospital Admin Login - Cancer Patient Support Platform</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -23,36 +23,44 @@
 
     <!-- Main Content -->
     <div class="container">
-        <h1 class="page-title">Forgot Password</h1>
-
-        <!-- Password Reset Form -->
         <div class="form-container">
-            <p class="text-center">
-                Enter your email address to reset your password. 
-                We will send you instructions to create a new password.
+            <h1 class="page-title">Hospital Admin Login</h1>
+            <p class="text-center" style="margin-bottom: 2rem;">
+                Access the hospital dashboard to verify patients and manage campaigns
             </p>
 
-            <form id="forgotPasswordForm">
-                <!-- Email Address -->
+            <!-- Hospital Login Form -->
+            <form id="hospitalLoginForm" class="form">
                 <div class="form-group">
-                    <label for="email">Email Address:</label>
-                    <input type="email" id="email" name="email" required>
+                    <label for="hospitalId">Hospital ID</label>
+                    <input 
+                        type="text" 
+                        id="hospitalId" 
+                        name="hospitalId" 
+                        placeholder="Enter your hospital ID"
+                        required
+                    >
                 </div>
 
-                <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Reset Password</button>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Login to Dashboard</button>
             </form>
 
-            <!-- Information Note -->
-            <div class="alert alert-info mt-2">
-                <strong>Note:</strong> Password recovery allows users to regain access to their account. 
-                In a real application, you would receive an email with reset instructions.
+            <!-- Links -->
+            <div class="text-center mt-2">
+                <p>Don't have an account? <a href="hospital-register.html">Register Hospital</a></p>
+                <p>Not a hospital admin? <a href="login.html">Regular User Login</a></p>
             </div>
-
-            <!-- Link to Login -->
-            <p class="text-center mt-2">
-                Remember your password? <a href="login.html">Login here</a>
-            </p>
         </div>
     </div>
 
@@ -99,30 +107,37 @@
 
     <script src="script.js"></script>
     <script>
-        // Handle form submission
-        document.getElementById('forgotPasswordForm').addEventListener('submit', function(e) {
+        // Handle hospital login form submission with security
+        document.getElementById('hospitalLoginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get email value
-            const email = document.getElementById('email').value;
+            const hospitalId = sanitizeInput(document.getElementById('hospitalId').value);
+            const password = document.getElementById('password').value;
             
-            // Validate email
-            if (!validateEmail(email)) {
-                showAlert('Please enter a valid email address', 'error');
+            // Validate inputs
+            if (!hospitalId || !password) {
+                showAlert('Please enter both Hospital ID and Password', 'error');
                 return;
             }
-            
-            // Show success message
-            showAlert('Password reset instructions have been sent to your email!', 'success');
-            
-            // Clear the form
-            document.getElementById('forgotPasswordForm').reset();
-            
-            // Redirect to login page after 3 seconds
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 3000);
+
+            try {
+                // Validate credentials with rate limiting
+                if (validateHospitalLogin(hospitalId, password)) {
+                    // Create secure session
+                    createHospitalSession(hospitalId);
+                    showAlert('Login successful! Redirecting to dashboard...', 'success');
+                    setTimeout(() => {
+                window.location.href = 'hospital-dashboard.html';
+                    }, 1000);
+            } else {
+                    showAlert('Invalid hospital ID or password. Please try again.', 'error');
+                }
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
         });
+
+
     </script>
 </body>
 </html>

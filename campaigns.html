@@ -18,7 +18,7 @@
             <li><a href="about.html">About Us</a></li>
             <li><a href="login.html">Login</a></li>
             <li><a href="create-account.html">Create Account</a></li>
-            <li><a href="hospital-login.html" style="background-color: #e74c3c; padding: 0.5rem 1rem; border-radius: 5px;">Hospital Login</a></li>
+            <li><a href="hospital-login.html" style="background-color: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 5px; border: 1px solid white;">Hospital Login</a></li>
         </ul>
     </nav>
 
@@ -38,7 +38,43 @@
 
     <!-- Footer -->
     <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CancerCare</h3>
+                <p>Supporting cancer patients in Yaoundé through community-driven fundraising and health education.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="campaigns.html">Active Campaigns</a></li>
+                    <li><a href="events.html">Health Events</a></li>
+                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get Involved</h4>
+                <ul>
+                    <li><a href="create-account.html">Create Account</a></li>
+                    <li><a href="donate.html">Make a Donation</a></li>
+                    <li><a href="verification.html">Patient Verification</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin: 0.5rem 0;">
+                    <strong>Phone:</strong><br>
+                    +237 680 480 725<br>
+                    +237 681 018 022
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Available Monday - Friday, 8AM - 5PM
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>
@@ -59,13 +95,22 @@
                 // Check if campaign has any donations
                 const hasNoDonations = campaign.raisedAmount === 0;
 
+                // Format date
+                const createdDate = campaign.createdDate ? new Date(campaign.createdDate).toLocaleDateString() : 'N/A';
+
                 // Create card HTML
                 const cardHTML = `
                     <div class="card">
                         <h3>${campaign.patientName}</h3>
-                        ${campaign.verified ? '<p style="color: #2ecc71;">Verified Patient</p>' : ''}
-                        ${hasNoDonations ? '<p style="color: #e74c3c; font-weight: bold;">No donations yet!</p>' : ''}
-                        <p>${campaign.story}</p>
+                        ${campaign.verified ? '<p style="color: #2ecc71; margin: 0.3rem 0;">Verified Patient</p>' : ''}
+                        <p style="color: #666; font-size: 0.9rem; margin: 0.3rem 0;">
+                            <strong>Hospital:</strong> ${campaign.hospitalName || 'N/A'}
+                        </p>
+                        <p style="color: #666; font-size: 0.9rem; margin: 0.3rem 0;">
+                            <strong>Date:</strong> ${createdDate}
+                        </p>
+                        ${hasNoDonations ? '<p style="color: #e74c3c; font-weight: bold; margin: 0.5rem 0;">No donations yet!</p>' : ''}
+                        <p style="margin: 1rem 0;">${campaign.story}</p>
 
                         <div style="margin: 1rem 0;">
                             <p><strong>Goal:</strong> ${formatCurrency(campaign.goalAmount)}</p>
