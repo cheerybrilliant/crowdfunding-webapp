@@ -196,79 +196,166 @@
 
     <!-- Footer -->
     <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CancerCare</h3>
+                <p>Supporting cancer patients in Yaoundé through community-driven fundraising and health education.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="campaigns.html">Active Campaigns</a></li>
+                    <li><a href="events.html">Health Events</a></li>
+                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get Involved</h4>
+                <ul>
+                    <li><a href="create-account.html">Create Account</a></li>
+                    <li><a href="donate.html">Make a Donation</a></li>
+                    <li><a href="verification.html">Patient Verification</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin: 0.5rem 0;">
+                    <strong>Phone:</strong><br>
+                    +237 680 480 725<br>
+                    +237 681 018 022
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Available Monday - Friday, 8AM - 5PM
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>
     <script>
-        // Sample pending verifications
-        const pendingVerifications = [
-            {
-                id: 1,
-                name: 'Marie Kouam',
-                diagnosis: 'Breast Cancer',
-                date: '2026-01-10',
-                status: 'pending'
-            },
-            {
-                id: 2,
-                name: 'Paul Nkeng',
-                diagnosis: 'Lung Cancer',
-                date: '2026-01-11',
-                status: 'pending'
-            },
-            {
-                id: 3,
-                name: 'Grace Mbida',
-                diagnosis: 'Leukemia',
-                date: '2026-01-12',
-                status: 'pending'
+        // Security: Check hospital authentication on page load
+        window.addEventListener('load', function() {
+            const session = validateHospitalSession();
+            if (!session) {
+                alert('Unauthorized access! Please login first.');
+                window.location.href = 'hospital-login.html';
+                return;
             }
-        ];
+
+            // Update dashboard header with hospital name
+            const headerTitle = document.querySelector('.dashboard-header h1');
+            if (headerTitle) {
+                headerTitle.textContent = `Hospital Admin Dashboard - ${session.hospitalName}`;
+            }
+        });
+
+        // Load pending verifications from localStorage
+        function getPendingVerifications() {
+            return JSON.parse(localStorage.getItem('verificationRequests') || '[]');
+        }
 
         // Display verifications
         function displayVerifications() {
             const tbody = document.querySelector('#verificationsTable tbody');
             tbody.innerHTML = '';
 
+            const pendingVerifications = getPendingVerifications().filter(v => v.status === 'pending');
+
+            if (pendingVerifications.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #666;">No pending verifications</td></tr>';
+                return;
+            }
+
             pendingVerifications.forEach(verification => {
                 const row = `
                     <tr>
-                        <td>${verification.name}</td>
+                        <td>${verification.patientName}</td>
                         <td>${verification.diagnosis}</td>
-                        <td>${verification.date}</td>
+                        <td>${new Date(verification.submittedDate).toLocaleDateString()}</td>
                         <td><span class="status-badge status-${verification.status}">${verification.status.toUpperCase()}</span></td>
                         <td class="action-buttons">
-                            <button class="btn-approve" onclick="approveVerification(${verification.id})">Approve</button>
-                            <button class="btn-reject" onclick="rejectVerification(${verification.id})">Reject</button>
+                            <button class="btn-approve" onclick="approveVerification('${verification.id}')">Approve</button>
+                            <button class="btn-reject" onclick="rejectVerification('${verification.id}')">Reject</button>
                         </td>
                     </tr>
                 `;
                 tbody.innerHTML += row;
             });
+
+            // Update pending count
+            document.querySelector('.stat-card:nth-child(2) .stat-number').textContent = pendingVerifications.length;
         }
 
-        // Approve verification
+        // Approve verification and create campaign
         function approveVerification(id) {
-            const verification = pendingVerifications.find(v => v.id === id);
+            const verificationRequests = getPendingVerifications();
+            const verification = verificationRequests.find(v => v.id === id);
+
             if (verification) {
-                alert(`Patient ${verification.name} has been approved and verified!`);
-                // In a real app, this would update the database
-                const index = pendingVerifications.findIndex(v => v.id === id);
-                pendingVerifications.splice(index, 1);
+                // Update verification status
+                verification.status = 'approved';
+                verification.approvedDate = new Date().toISOString();
+                localStorage.setItem('verificationRequests', JSON.stringify(verificationRequests));
+
+                // Create new campaign
+                const campaigns = loadCampaigns();
+                const newCampaignId = campaigns.length > 0 ? Math.max(...campaigns.map(c => c.id)) + 1 : 1;
+
+                const newCampaign = {
+                    id: newCampaignId,
+                    patientName: verification.patientName,
+                    age: 0, // Will be updated when patient completes profile
+                    patientType: 'adult',
+                    story: `${verification.patientName} is fighting ${verification.diagnosis} and needs your support.`,
+                    fullStory: `${verification.patientName} has been diagnosed with ${verification.diagnosis} and requires urgent medical treatment. The estimated treatment cost is ${formatCurrency(verification.treatmentCost)}. Your support will help provide the necessary medical care.`,
+                    goalAmount: parseInt(verification.treatmentCost),
+                    raisedAmount: 0,
+                    image: 'patient-default.jpg',
+                    verified: true,
+                    verifiedBy: verification.hospitalId,
+                    createdDate: new Date().toISOString()
+                };
+
+                campaigns.push(newCampaign);
+
+                // Save campaigns to localStorage
+                const secureData = {
+                    campaigns: campaigns,
+                    checksum: generateChecksum(campaigns)
+                };
+                localStorage.setItem('campaigns', JSON.stringify(secureData));
+
+                // Update patient's verified status
+                const userDatabase = getUserDatabase();
+                if (userDatabase[verification.patientEmail]) {
+                    userDatabase[verification.patientEmail].userData.verified = true;
+                    userDatabase[verification.patientEmail].userData.campaignId = newCampaignId;
+                    localStorage.setItem('userDatabase', JSON.stringify(userDatabase));
+                }
+
+                alert(`Patient ${verification.patientName} has been approved and verified!\nA new campaign has been created.`);
                 displayVerifications();
             }
         }
 
         // Reject verification
         function rejectVerification(id) {
-            const verification = pendingVerifications.find(v => v.id === id);
+            const verificationRequests = getPendingVerifications();
+            const verification = verificationRequests.find(v => v.id === id);
+
             if (verification) {
                 const reason = prompt('Please provide a reason for rejection:');
                 if (reason) {
-                    alert(`Verification for ${verification.name} has been rejected.\nReason: ${reason}`);
-                    const index = pendingVerifications.findIndex(v => v.id === id);
-                    pendingVerifications.splice(index, 1);
+                    verification.status = 'rejected';
+                    verification.rejectedDate = new Date().toISOString();
+                    verification.rejectionReason = reason;
+                    localStorage.setItem('verificationRequests', JSON.stringify(verificationRequests));
+
+                    alert(`Verification for ${verification.patientName} has been rejected.\nReason: ${reason}`);
                     displayVerifications();
                 }
             }

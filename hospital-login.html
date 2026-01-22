@@ -58,6 +58,7 @@
 
             <!-- Links -->
             <div class="text-center mt-2">
+                <p>Don't have an account? <a href="hospital-register.html">Register Hospital</a></p>
                 <p>Not a hospital admin? <a href="login.html">Regular User Login</a></p>
             </div>
         </div>
@@ -65,26 +66,78 @@
 
     <!-- Footer -->
     <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CancerCare</h3>
+                <p>Supporting cancer patients in Yaoundé through community-driven fundraising and health education.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="campaigns.html">Active Campaigns</a></li>
+                    <li><a href="events.html">Health Events</a></li>
+                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get Involved</h4>
+                <ul>
+                    <li><a href="create-account.html">Create Account</a></li>
+                    <li><a href="donate.html">Make a Donation</a></li>
+                    <li><a href="verification.html">Patient Verification</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin: 0.5rem 0;">
+                    <strong>Phone:</strong><br>
+                    +237 680 480 725<br>
+                    +237 681 018 022
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Available Monday - Friday, 8AM - 5PM
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>
     <script>
-        // Handle hospital login form submission
+        // Handle hospital login form submission with security
         document.getElementById('hospitalLoginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const hospitalId = document.getElementById('hospitalId').value;
+            const hospitalId = sanitizeInput(document.getElementById('hospitalId').value);
             const password = document.getElementById('password').value;
             
-            // Simple validation (demo purposes)
-            if (hospitalId === 'HOSP001' && password === 'hospital123') {
-                alert('Login successful! Redirecting to dashboard...');
+            // Validate inputs
+            if (!hospitalId || !password) {
+                showAlert('Please enter both Hospital ID and Password', 'error');
+                return;
+            }
+
+            try {
+                // Validate credentials with rate limiting
+                if (validateHospitalLogin(hospitalId, password)) {
+                    // Create secure session
+                    createHospitalSession(hospitalId);
+                    showAlert('Login successful! Redirecting to dashboard...', 'success');
+                    setTimeout(() => {
                 window.location.href = 'hospital-dashboard.html';
+                    }, 1000);
             } else {
-                alert('Invalid hospital ID or password. Please try again.');
+                    showAlert('Invalid hospital ID or password. Please try again.', 'error');
+                }
+            } catch (error) {
+                showAlert(error.message, 'error');
             }
         });
+
+
     </script>
 </body>
 </html>
