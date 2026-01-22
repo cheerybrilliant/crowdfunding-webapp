@@ -138,25 +138,27 @@
         }
         
         // Check if donating to specific campaign
-        function checkCampaignDonation() {
+        async function checkCampaignDonation() {
             const urlParams = new URLSearchParams(window.location.search);
             const campaignId = urlParams.get('campaign');
             
             if (campaignId) {
-                const campaign = getCampaignById(campaignId);
-                if (campaign) {
+                try {
+                    const campaign = await api.getCampaign(campaignId);
                     const campaignInfo = document.getElementById('campaignInfo');
                     campaignInfo.style.display = 'block';
                     campaignInfo.innerHTML = `
                         <strong>Donating to:</strong> ${campaign.patientName}<br>
                         <small>${campaign.story}</small>
                     `;
+                } catch (error) {
+                    console.error('Failed to load campaign:', error);
                 }
             }
         }
         
-        // Handle form submission with security
-        document.getElementById('donationForm').addEventListener('submit', function(e) {
+        // Handle form submission with security and backend integration
+        document.getElementById('donationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             // Rate limiting check
@@ -196,18 +198,36 @@
                 return;
             }
             
-            // Show success message
-            const methodName = paymentMethod === 'mtn' ? 'MTN Mobile Money' : 'Orange Mobile Money';
-            showAlert(`Thank you ${donorName}! Your donation of ${formatCurrency(amount)} via ${methodName} is being processed.`, 'success');
-            
-            // Clear form
-            document.getElementById('donationForm').reset();
-            
-            // In a real application, this would process the payment
-            // For now, we'll just redirect after a delay
-            setTimeout(() => {
-                window.location.href = 'campaigns.html';
-            }, 3000);
+            try {
+                // Send donation to backend
+                const urlParams = new URLSearchParams(window.location.search);
+                const campaignId = urlParams.get('campaign');
+                
+                const donationData = {
+                    campaignId: campaignId || null,
+                    amount: amount,
+                    paymentMethod: paymentMethod,
+                    phoneNumber: phoneNumber,
+                    donorName: donorName,
+                    donorEmail: 'donor@example.com' // Could be collected from form
+                };
+
+                const response = await api.createDonation(donationData);
+                
+                // Show success message
+                const methodName = paymentMethod === 'mtn' ? 'MTN Mobile Money' : 'Orange Mobile Money';
+                showAlert(`Thank you ${donorName}! Your donation of ${formatCurrency(amount)} via ${methodName} has been received. Transaction ID: ${response.donationId}`, 'success');
+                
+                // Clear form
+                document.getElementById('donationForm').reset();
+                
+                // Redirect after a delay
+                setTimeout(() => {
+                    window.location.href = 'campaigns.html';
+                }, 3000);
+            } catch (error) {
+                showAlert('Failed to process donation: ' + error.message, 'error');
+            }
         });
         
         // Load campaign info when page loads
