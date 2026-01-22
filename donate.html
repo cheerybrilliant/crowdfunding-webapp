@@ -91,7 +91,43 @@
 
     <!-- Footer -->
     <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CancerCare</h3>
+                <p>Supporting cancer patients in Yaoundé through community-driven fundraising and health education.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="campaigns.html">Active Campaigns</a></li>
+                    <li><a href="events.html">Health Events</a></li>
+                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get Involved</h4>
+                <ul>
+                    <li><a href="create-account.html">Create Account</a></li>
+                    <li><a href="donate.html">Make a Donation</a></li>
+                    <li><a href="verification.html">Patient Verification</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin: 0.5rem 0;">
+                    <strong>Phone:</strong><br>
+                    +237 680 480 725<br>
+                    +237 681 018 022
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Available Monday - Friday, 8AM - 5PM
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>
@@ -102,57 +138,96 @@
         }
         
         // Check if donating to specific campaign
-        function checkCampaignDonation() {
+        async function checkCampaignDonation() {
             const urlParams = new URLSearchParams(window.location.search);
             const campaignId = urlParams.get('campaign');
             
             if (campaignId) {
-                const campaign = getCampaignById(campaignId);
-                if (campaign) {
+                try {
+                    const campaign = await api.getCampaign(campaignId);
                     const campaignInfo = document.getElementById('campaignInfo');
                     campaignInfo.style.display = 'block';
                     campaignInfo.innerHTML = `
                         <strong>Donating to:</strong> ${campaign.patientName}<br>
                         <small>${campaign.story}</small>
                     `;
+                } catch (error) {
+                    console.error('Failed to load campaign:', error);
                 }
             }
         }
         
-        // Handle form submission
-        document.getElementById('donationForm').addEventListener('submit', function(e) {
+        // Handle form submission with security and backend integration
+        document.getElementById('donationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+
+            // Rate limiting check
+            if (!rateLimiter.checkLimit('donation')) {
+                const remainingTime = rateLimiter.getRemainingTime('donation');
+                showAlert(`Too many donation attempts. Please wait ${remainingTime} seconds.`, 'error');
+                return;
+            }
             
             // Get form values
-            const amount = document.getElementById('amount').value;
-            const phoneNumber = document.getElementById('phoneNumber').value;
+            const amount = parseInt(document.getElementById('amount').value);
+            const phoneNumber = sanitizeInput(document.getElementById('phoneNumber').value);
             const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-            const donorName = document.getElementById('donorName').value || 'Anonymous';
+            const donorName = sanitizeInput(document.getElementById('donorName').value) || 'Anonymous';
             
-            // Validate amount
-            if (amount < 500) {
+            // Validate amount (prevent negative or excessive amounts)
+            if (isNaN(amount) || amount < 500) {
                 showAlert('Minimum donation amount is XAF 500', 'error');
                 return;
             }
             
-            // Validate phone number (basic validation)
-            if (phoneNumber.length < 9) {
-                showAlert('Please enter a valid phone number', 'error');
+            if (amount > 100000000) { // Max 100 million XAF
+                showAlert('Maximum donation amount is XAF 100,000,000. Please contact us for larger donations.', 'error');
+                return;
+            }
+
+            // Validate phone number (Cameroon format)
+            const phoneRegex = /^[6][0-9]{8}$/;
+            if (!phoneRegex.test(phoneNumber.replace(/\s/g, ''))) {
+                showAlert('Please enter a valid Cameroon phone number (9 digits starting with 6)', 'error');
+                return;
+            }
+
+            // Validate payment method
+            if (!['mtn', 'orange'].includes(paymentMethod)) {
+                showAlert('Invalid payment method selected', 'error');
                 return;
             }
             
-            // Show success message
-            const methodName = paymentMethod === 'mtn' ? 'MTN Mobile Money' : 'Orange Mobile Money';
-            showAlert(`Thank you ${donorName}! Your donation of ${formatCurrency(amount)} via ${methodName} is being processed.`, 'success');
-            
-            // Clear form
-            document.getElementById('donationForm').reset();
-            
-            // In a real application, this would process the payment
-            // For now, we'll just redirect after a delay
-            setTimeout(() => {
-                window.location.href = 'campaigns.html';
-            }, 3000);
+            try {
+                // Send donation to backend
+                const urlParams = new URLSearchParams(window.location.search);
+                const campaignId = urlParams.get('campaign');
+                
+                const donationData = {
+                    campaignId: campaignId || null,
+                    amount: amount,
+                    paymentMethod: paymentMethod,
+                    phoneNumber: phoneNumber,
+                    donorName: donorName,
+                    donorEmail: 'donor@example.com' // Could be collected from form
+                };
+
+                const response = await api.createDonation(donationData);
+                
+                // Show success message
+                const methodName = paymentMethod === 'mtn' ? 'MTN Mobile Money' : 'Orange Mobile Money';
+                showAlert(`Thank you ${donorName}! Your donation of ${formatCurrency(amount)} via ${methodName} has been received. Transaction ID: ${response.donationId}`, 'success');
+                
+                // Clear form
+                document.getElementById('donationForm').reset();
+                
+                // Redirect after a delay
+                setTimeout(() => {
+                    window.location.href = 'campaigns.html';
+                }, 3000);
+            } catch (error) {
+                showAlert('Failed to process donation: ' + error.message, 'error');
+            }
         });
         
         // Load campaign info when page loads

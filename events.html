@@ -78,6 +78,44 @@
         .event-item.health-gathering {
             border-left-color: #2ecc71;
         }
+
+        .event-funding {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .funding-progress {
+            margin: 1rem 0;
+        }
+
+        .funding-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .fully-funded {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .event-actions .btn {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
@@ -92,7 +130,7 @@
             <li><a href="about.html">About Us</a></li>
             <li><a href="login.html">Login</a></li>
             <li><a href="create-account.html">Create Account</a></li>
-            <li><a href="hospital-login.html" style="background-color: #e74c3c; padding: 0.5rem 1rem; border-radius: 5px;">Hospital Login</a></li>
+            <li><a href="hospital-login.html" style="background-color: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 5px; border: 1px solid white;">Hospital Login</a></li>
         </ul>
     </nav>
 
@@ -103,6 +141,11 @@
             Join us for educational seminars and health gatherings focused on cancer awareness, 
             prevention, and support.
         </p>
+
+        <!-- Image 3 Section -->
+        <div class="image-section">
+            <img src="image/image 3.jpeg" alt="Health Events" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px; margin: 2rem 0;">
+        </div>
 
         <!-- Calendar View -->
         <div class="calendar">
@@ -121,7 +164,43 @@
 
     <!-- Footer -->
     <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CancerCare</h3>
+                <p>Supporting cancer patients in Yaoundé through community-driven fundraising and health education.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="campaigns.html">Active Campaigns</a></li>
+                    <li><a href="events.html">Health Events</a></li>
+                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Get Involved</h4>
+                <ul>
+                    <li><a href="create-account.html">Create Account</a></li>
+                    <li><a href="donate.html">Make a Donation</a></li>
+                    <li><a href="verification.html">Patient Verification</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin: 0.5rem 0;">
+                    <strong>Phone:</strong><br>
+                    +237 680 480 725<br>
+                    +237 681 018 022
+                </p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Available Monday - Friday, 8AM - 5PM
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>
@@ -159,12 +238,13 @@
         // Display events list
         function displayEvents() {
             const eventsList = document.getElementById('eventsList');
+            const events = loadEvents();
 
             // Clear list
             eventsList.innerHTML = '';
 
             // Add each event
-            sampleEvents.forEach(event => {
+            events.forEach(event => {
                 // Format date
                 const eventDate = new Date(event.date);
                 const formattedDate = eventDate.toLocaleDateString('en-US', {
@@ -177,16 +257,57 @@
                 // Determine event class
                 const eventClass = event.type === 'Seminar' ? 'seminar' : 'health-gathering';
 
+                // Calculate funding percentage
+                const percentage = ((event.raisedAmount / event.goalAmount) * 100).toFixed(1);
+                const isFullyFunded = event.raisedAmount >= event.goalAmount;
+
+                // Create funding section HTML
+                const fundingHTML = event.needsFunding || isFullyFunded ? `
+                    <div class="event-funding">
+                        <h4 style="margin-top: 0; color: #1976D2;">Event Funding</h4>
+                        ${isFullyFunded ?
+                            '<div class="fully-funded">Fully Funded - Thank You!</div>' :
+                            `<div class="funding-progress">
+                                <div class="funding-stats">
+                                    <span><strong>Goal:</strong> ${formatCurrency(event.goalAmount)}</span>
+                                    <span><strong>Raised:</strong> ${formatCurrency(event.raisedAmount)}</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${percentage}%"></div>
+                                </div>
+                                <p style="text-align: center; color: #1976D2; font-weight: bold; margin-top: 0.5rem;">
+                                    ${percentage}% funded
+                                </p>
+                            </div>`
+                        }
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem; color: #666;">
+                            Help us cover costs for venue, materials, medical supplies, and refreshments.
+                        </p>
+                    </div>
+                ` : '';
+
                 // Create event HTML
                 const eventHTML = `
                     <div class="event-item ${eventClass}">
                         <h3>${event.title}</h3>
                         <p><strong>Date:</strong> ${formattedDate}</p>
                         <p><strong>Type:</strong> ${event.type}</p>
-                        <p>${event.description}</p>
+                        <p><strong>Location:</strong> ${event.location || 'TBA'}</p>
+                        <p><strong>Capacity:</strong> ${event.capacity || 'Unlimited'} attendees</p>
+                        <p style="margin: 1rem 0;">${event.description}</p>
+
+                        ${fundingHTML}
+
+                        <div class="event-actions">
                         <button class="btn btn-primary" onclick="registerForEvent(${event.id})">
                             Register Interest
                         </button>
+                            ${!isFullyFunded && event.needsFunding ?
+                                `<button class="btn btn-secondary" onclick="donateToEventPage(${event.id})" style="background-color: #2ecc71; border-color: #2ecc71;">
+                                    Donate to Event
+                                </button>` : ''
+                            }
+                        </div>
                     </div>
                 `;
 
@@ -194,7 +315,7 @@
             });
 
             // If no events
-            if (sampleEvents.length === 0) {
+            if (events.length === 0) {
                 eventsList.innerHTML = `
                     <div class="card">
                         <p class="text-center">No upcoming events at the moment. Check back soon!</p>
@@ -205,10 +326,130 @@
 
         // Register for event
         function registerForEvent(eventId) {
-            const event = sampleEvents.find(e => e.id === eventId);
+            const events = loadEvents();
+            const event = events.find(e => e.id === eventId);
             if (event) {
                 showAlert(`Thank you for your interest in "${event.title}"! We will send you more details soon.`, 'success');
             }
+        }
+
+        // Donate to event
+        function donateToEventPage(eventId) {
+            const events = loadEvents();
+            const event = events.find(e => e.id === eventId);
+
+            if (!event) {
+                showAlert('Event not found', 'error');
+                return;
+            }
+
+            // Create donation modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+
+            const remaining = event.goalAmount - event.raisedAmount;
+
+            modal.innerHTML = `
+                <div style="background: white; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%;">
+                    <h2 style="margin-top: 0; color: #1976D2;">Donate to ${event.title}</h2>
+                    <p style="color: #666; margin: 1rem 0;">
+                        Help us make this event possible! Your donation will cover venue costs,
+                        medical supplies, educational materials, and refreshments.
+                    </p>
+
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <p style="margin: 0.5rem 0;"><strong>Goal:</strong> ${formatCurrency(event.goalAmount)}</p>
+                        <p style="margin: 0.5rem 0;"><strong>Raised:</strong> ${formatCurrency(event.raisedAmount)}</p>
+                        <p style="margin: 0.5rem 0; color: #e74c3c;"><strong>Remaining:</strong> ${formatCurrency(remaining)}</p>
+                    </div>
+
+                    <form id="eventDonationForm" style="margin: 1.5rem 0;">
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Donation Amount (XAF)</label>
+                            <input type="number" id="donationAmount" min="1000" step="1000"
+                                   placeholder="Enter amount (min: 1,000 XAF)" required
+                                   style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Your Name</label>
+                            <input type="text" id="donorName" placeholder="Enter your name" required
+                                   style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Payment Method</label>
+                            <select id="paymentMethod" required
+                                    style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                                <option value="">Select payment method</option>
+                                <option value="mtn">MTN Mobile Money</option>
+                                <option value="orange">Orange Money</option>
+                            </select>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">
+                                Donate Now
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="this.closest('[style*=fixed]').remove()" style="flex: 1;">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Handle form submission
+            document.getElementById('eventDonationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const amount = parseInt(document.getElementById('donationAmount').value);
+                const donorName = sanitizeInput(document.getElementById('donorName').value);
+                const paymentMethod = document.getElementById('paymentMethod').value;
+
+                if (amount < 1000) {
+                    showAlert('Minimum donation amount is 1,000 XAF', 'error');
+                    return;
+                }
+
+                // Process donation
+                const success = donateToEvent(eventId, amount);
+
+                if (success) {
+                    // Save donation record
+                    const eventDonations = JSON.parse(localStorage.getItem('eventDonations') || '[]');
+                    eventDonations.push({
+                        eventId: eventId,
+                        eventTitle: event.title,
+                        donorName: donorName,
+                        amount: amount,
+                        paymentMethod: paymentMethod,
+                        date: new Date().toISOString()
+                    });
+                    localStorage.setItem('eventDonations', JSON.stringify(eventDonations));
+
+                    modal.remove();
+                    showAlert(`Thank you ${donorName}! Your donation of ${formatCurrency(amount)} has been received.`, 'success');
+
+                    // Refresh events display
+                    displayEvents();
+                } else {
+                    showAlert('Donation failed. Please try again.', 'error');
+                }
+            });
         }
 
         // Load calendar and events when page loads
