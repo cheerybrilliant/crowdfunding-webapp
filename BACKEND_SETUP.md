@@ -108,8 +108,6 @@ Ensure your donation form has these input elements:
       <option value="">Select Payment Method</option>
       <option value="mtn">MTN Mobile Money</option>
       <option value="orange">Orange Money</option>
-      <option value="paystack">Paystack</option>
-      <option value="bank">Bank Transfer</option>
     </select>
   </div>
 
