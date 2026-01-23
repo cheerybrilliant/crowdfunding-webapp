@@ -37,7 +37,7 @@ export const createDonation = [
         message: 'Donation created. Please complete payment on your phone.',
       });
     } catch (err: any) {
-      res.status(400).json({ message: err.message || 'Failed to initiate donation' });
+      return res.status(400).json({ message: err.message || 'Failed to initiate donation' });
     }
   },
 ];
@@ -65,9 +65,9 @@ export const getDonation = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Donation not found' });
     }
 
-    res.json(donation);
+    return res.json(donation);
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    return res.status(500).json({ message: err.message });
   }
 };
 
