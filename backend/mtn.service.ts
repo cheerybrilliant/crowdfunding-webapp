@@ -16,8 +16,13 @@ interface MTNPaymentRequest {
 
 export class MTNPaymentService {
   private api: AxiosInstance;
+  private authApi: AxiosInstance;
   private baseUrl: string;
   private subscriptionKey: string;
+  private apiUser: string;
+  private apiKey: string;
+  private accessToken: string | null = null;
+  private tokenExpiresAt: number | null = null;
 
   constructor() {
     this.baseUrl =
@@ -26,11 +31,56 @@ export class MTNPaymentService {
         : config.MTN.SANDBOX_URL;
 
     this.subscriptionKey = config.MTN.SUBSCRIPTION_KEY;
+    this.apiUser = config.MTN.API_USER;
+    this.apiKey = config.MTN.API_KEY;
 
     this.api = axios.create({
-      baseURL: this.baseUrl,
+      baseURL: `${this.baseUrl}/collection/v1_0`,
       timeout: config.API_TIMEOUT,
     });
+
+    this.authApi = axios.create({
+      baseURL: `${this.baseUrl}/collection`,
+      timeout: config.API_TIMEOUT,
+    });
+  }
+
+  private getTargetEnvironment(): string {
+    return config.MTN.ENVIRONMENT === 'production' ? 'production' : 'sandbox';
+  }
+
+  private async getAccessToken(): Promise<string> {
+    if (this.accessToken && this.tokenExpiresAt && Date.now() < this.tokenExpiresAt) {
+      return this.accessToken;
+    }
+
+    if (!this.apiUser || !this.apiKey) {
+      throw new Error('MTN API user/key missing. Set MTN_API_USER and MTN_API_KEY.');
+    }
+
+    const credentials = Buffer.from(`${this.apiUser}:${this.apiKey}`).toString('base64');
+
+    try {
+      const response = await this.authApi.post(
+        '/token/',
+        null,
+        {
+          headers: {
+            Authorization: `Basic ${credentials}`,
+            'Ocp-Apim-Subscription-Key': this.subscriptionKey,
+          },
+        }
+      );
+
+      const expiresIn = Number(response.data.expires_in || 0);
+      this.accessToken = response.data.access_token;
+      this.tokenExpiresAt = Date.now() + Math.max(expiresIn - 60, 60) * 1000;
+
+      return this.accessToken;
+    } catch (error: any) {
+      console.error('MTN Token Error:', error.response?.data || error.message);
+      throw new Error(`Failed to get MTN token: ${error.response?.data?.message || error.message}`);
+    }
   }
 
   /**
@@ -38,10 +88,13 @@ export class MTNPaymentService {
    */
   async initiatePayment(paymentData: MTNPaymentRequest): Promise<any> {
     try {
-      await this.api.post('/v1_0/requesttopay', paymentData, {
+      const accessToken = await this.getAccessToken();
+      await this.api.post('/requesttopay', paymentData, {
         headers: {
+          Authorization: `Bearer ${accessToken}`,
           'Ocp-Apim-Subscription-Key': this.subscriptionKey,
           'X-Reference-Id': paymentData.externalId,
+          'X-Target-Environment': this.getTargetEnvironment(),
           'Content-Type': 'application/json',
         },
       });
@@ -62,9 +115,12 @@ export class MTNPaymentService {
    */
   async checkPaymentStatus(requestId: string): Promise<any> {
     try {
-      const response = await this.api.get(`/v1_0/requesttopay/${requestId}`, {
+      const accessToken = await this.getAccessToken();
+      const response = await this.api.get(`/requesttopay/${requestId}`, {
         headers: {
+          Authorization: `Bearer ${accessToken}`,
           'Ocp-Apim-Subscription-Key': this.subscriptionKey,
+          'X-Target-Environment': this.getTargetEnvironment(),
         },
       });
 

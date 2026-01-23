@@ -19,6 +19,7 @@ export const config = {
   // MTN Payment
   MTN: {
     API_KEY: process.env.MTN_API_KEY || '',
+    API_USER: process.env.MTN_API_USER || '',
     API_SECRET: process.env.MTN_API_SECRET || '',
     SUBSCRIPTION_KEY: process.env.MTN_SUBSCRIPTION_KEY || '',
     PRIMARY_KEY: process.env.MTN_PRIMARY_KEY || '',
