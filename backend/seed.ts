@@ -1,11 +1,16 @@
 import { PrismaClient } from '@prisma/client';
-import { AuthService } from './auth.service'; // Adjust path if needed
+import bcrypt from 'bcryptjs';
+// import {  registerUser } from './auth.service'; // Adjust path if needed
 
 const prisma = new PrismaClient();
 
 async function main() {
   // Seed admin user
-  const adminPassword = await AuthService.hashPassword('CancerCare2026');
+  // If registerUser returns { user, token }, you may need a separate hashPassword function.
+  // Example using bcrypt:
+   
+
+  const adminPassword = await bcrypt.hash('CancerCare2026', 10);
   await prisma.user.upsert({
     where: { email: 'admin@cancercare.com' },
     update: {},
