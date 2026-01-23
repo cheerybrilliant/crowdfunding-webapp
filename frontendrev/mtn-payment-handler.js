@@ -3,10 +3,16 @@
  * Manages MTN mobile money payment UI and processing
  */
 
+ /**
+ * MTN Payment Handler for Frontend
+ * Manages MTN mobile money payment UI and processing
+ */
+
 class MTNPaymentHandler {
   constructor() {
     this.paymentInProgress = false;
     this.currentDonation = null;
+    // DO NOT PUT API KEYS HERE - Use environment variables or backend
   }
 
   /**
@@ -26,7 +32,6 @@ class MTNPaymentHandler {
       });
     }
 
-    // Setup donation form
     this.setupDonationForm();
   }
 
@@ -53,7 +58,7 @@ class MTNPaymentHandler {
       const mtnPhone = document.getElementById('mtnPhone').value;
       const paymentMethod = document.getElementById('paymentMethod').value;
       const campaignId = document.getElementById('campaignId').value;
-      const message = document.getElementById('donationMessage').value;
+      const message = document.getElementById('donationMessage')?.value || '';
 
       // Validation
       if (!amount || amount < 500) {
@@ -74,7 +79,6 @@ class MTNPaymentHandler {
         return;
       }
 
-      // Prevent duplicate submissions
       if (this.paymentInProgress) {
         showAlert('Payment is already in progress', 'warning');
         return;
@@ -82,130 +86,157 @@ class MTNPaymentHandler {
 
       this.paymentInProgress = true;
 
-      // Create donation
+      // Create donation data
       const donationData = {
         amount: parseFloat(amount),
         donorName: sanitizeInput(donorName),
         donorPhone: paymentMethod === 'mtn' ? this.formatMTNPhone(mtnPhone) : null,
         paymentMethod,
-        campaignId,
+        campaignId: parseInt(campaignId),
         message: sanitizeInput(message),
+        status: 'pending',
+        createdAt: new Date().toISOString()
       };
 
-      const donation = await DonationManager.createDonation(donationData);
-      this.currentDonation = donation.donation;
+      // Save to localStorage (TEMPORARY - use backend in production)
+      this.currentDonation = this.saveDonationToLocalStorage(donationData);
 
       if (paymentMethod === 'mtn') {
-        this.handleMTNPaymentFlow();
+        await this.handleMTNPaymentFlow();
+      } else {
+        showAlert('Payment method not yet implemented', 'info');
+        this.paymentInProgress = false;
       }
 
       // Reset form
       event.target.reset();
     } catch (error) {
       console.error('Donation error:', error);
+      showAlert('Error processing donation. Please try again.', 'danger');
       this.paymentInProgress = false;
     }
   }
 
   /**
-   * Handle MTN payment flow
+   * Save donation to localStorage (TEMPORARY SOLUTION)
+   */
+  saveDonationToLocalStorage(donationData) {
+    const donations = JSON.parse(localStorage.getItem('donations') || '[]');
+    const newDonation = {
+      id: Date.now(),
+      ...donationData
+    };
+    donations.push(newDonation);
+    localStorage.setItem('donations', JSON.stringify(donations));
+    return newDonation;
+  }
+
+  /**
+   * Handle MTN payment flow - CALLS BACKEND API (SECURE)
    */
   async handleMTNPaymentFlow() {
-   /**
- * Handle MTN payment flow - REAL MTN MoMo API integration
- */
     try {
-        // Show payment confirmation prompt
-        const confirmPayment = confirm(
-            `A payment prompt will be sent to your MTN phone (${this.currentDonation.donorPhone}).\n\n` +
-            'Please confirm the payment on your phone to complete the donation.\n\n' +
-            'Click OK to proceed.'
-        );
+      const confirmPayment = confirm(
+        `A payment prompt will be sent to your MTN phone (${this.currentDonation.donorPhone}).\n\n` +
+        'Please confirm the payment on your phone to complete the donation.\n\n' +
+        'Click OK to proceed.'
+      );
 
-        if (!confirmPayment) {
-            showAlert('Payment cancelled', 'info');
-            this.paymentInProgress = false;
-            return;
-        }
-
-        // Show waiting UI
-        const waitDiv = this.showPaymentWaitingUI();
-
-        // === REAL MTN MoMo API CALLS START HERE ===
-
-        // 1. Get access token
-        const token = await this.getMoMoAccessToken();
-
-        // 2. Generate unique reference ID
-        const referenceId = crypto.randomUUID();
-
-        // 3. Initiate Request to Pay
-        const payload = {
-            amount: this.currentDonation.amount.toString(),
-            currency: 'XAF',  // Change to 'EUR' if testing in sandbox
-            externalId: `donation_${this.currentDonation.id}_${Date.now()}`,
-            payer: {
-                partyIdType: 'MSISDN',
-                partyId: this.currentDonation.donorPhone
-            },
-            payerMessage: 'Donation to CancerCare Event',
-            payeeNote: 'Thank you for your support!'
-        };
-
-        const initiateResponse = await fetch('https://sandbox.momodeveloper.mtn.com/collection/v1_0/requesttopay', {  // Change to production URL later
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'X-Reference-Id': referenceId,
-                'X-Target-Environment': 'sandbox',  // Change to '237' for Cameroon production
-                'Content-Type': 'application/json',
-                'Ocp-Apim-Subscription-Key': '0fb3b33116c547ff952f429e5036ae0e'  // ← Replace with your key
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!initiateResponse.ok) {
-            const err = await initiateResponse.json();
-            throw new Error(err.message || 'Failed to initiate MTN payment request');
-        }
-
-        // 4. Update donation with referenceId (for polling)
-        await DonationManager.updateDonation(this.currentDonation.id, { referenceId });
-
-        // 5. Start polling for status (your existing function)
-        await DonationManager.pollMTNPaymentStatus(this.currentDonation.id, referenceId);
-
-        // Payment successful → remove waiting UI
-        if (waitDiv) waitDiv.remove();
-
-        showAlert('Payment successful! Thank you for your donation.', 'success');
+      if (!confirmPayment) {
+        showAlert('Payment cancelled', 'info');
         this.paymentInProgress = false;
+        return;
+      }
 
-    } catch (error) {
-        console.error('MTN payment flow error:', error);
-        showAlert(error.message || 'Error processing MTN payment. Please try again.', 'danger');
-        if (waitDiv) waitDiv.remove();
-        this.paymentInProgress = false;
-    }
-}
+      const waitDiv = this.showPaymentWaitingUI();
 
-/**
- * Get MTN MoMo access token
- */
-async getMoMoAccessToken() {
-    const basicAuth = btoa('crowdfundsme:0fb3b33116c547ff952f429e5036ae0e');  // ← Replace with your API_USER:API_KEY
-    const response = await fetch('https://sandbox.momodeveloper.mtn.com/collection/token/', {
+      // CALL YOUR BACKEND API INSTEAD OF DIRECT MTN API
+      // Your backend should handle the MTN MoMo API calls securely
+      const response = await fetch('/api/donations/mtn-payment', {
         method: 'POST',
         headers: {
-            'Authorization': `Basic ${basicAuth}`,
-            'Ocp-Apim-Subscription-Key': '0fb3b33116c547ff952f429e5036ae0e'  // ← Replace
-        }
-    });
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          donationId: this.currentDonation.id,
+          amount: this.currentDonation.amount,
+          phoneNumber: this.currentDonation.donorPhone,
+          campaignId: this.currentDonation.campaignId
+        })
+      });
 
-    if (!response.ok) throw new Error('Failed to get MTN access token');
-    const data = await response.json();
-    return data.access_token;
-}
+      if (!response.ok) {
+        throw new Error('Failed to initiate payment');
+      }
+
+      const result = await response.json();
+
+      // Poll for payment status
+      await this.pollPaymentStatus(result.referenceId, waitDiv);
+
+    } catch (error) {
+      console.error('MTN payment flow error:', error);
+      showAlert(error.message || 'Error processing MTN payment. Please try again.', 'danger');
+      this.paymentInProgress = false;
+    }
+  }
+
+  /**
+   * Poll payment status
+   */
+  async pollPaymentStatus(referenceId, waitDiv, attempts = 0, maxAttempts = 30) {
+    if (attempts >= maxAttempts) {
+      if (waitDiv) waitDiv.remove();
+      showAlert('Payment confirmation timeout. Please check your account.', 'warning');
+      this.paymentInProgress = false;
+      return;
+    }
+
+    setTimeout(async () => {
+      try {
+        // Call backend to check status
+        const response = await fetch(`/api/donations/check-payment/${referenceId}`);
+        const result = await response.json();
+
+        if (result.status === 'SUCCESSFUL') {
+          if (waitDiv) waitDiv.remove();
+          showAlert('Payment successful! Thank you for your donation.', 'success');
+          this.paymentInProgress = false;
+          
+          // Update campaign
+          this.updateCampaignAmount(this.currentDonation.campaignId, this.currentDonation.amount);
+          
+          // Reload page to show updated donations
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else if (result.status === 'FAILED') {
+          if (waitDiv) waitDiv.remove();
+          showAlert('Payment failed. Please try again.', 'danger');
+          this.paymentInProgress = false;
+        } else {
+          // Continue polling
+          this.pollPaymentStatus(referenceId, waitDiv, attempts + 1, maxAttempts);
+        }
+      } catch (error) {
+        console.error('Error checking payment status:', error);
+        this.pollPaymentStatus(referenceId, waitDiv, attempts + 1, maxAttempts);
+      }
+    }, 10000); // Check every 10 seconds
+  }
+
+  /**
+   * Update campaign raised amount
+   */
+  updateCampaignAmount(campaignId, amount) {
+    const campaigns = loadCampaigns();
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (campaign) {
+      campaign.raisedAmount = (campaign.raisedAmount || 0) + amount;
+      saveCampaigns(campaigns);
+    }
+  }
+
   /**
    * Show waiting UI for payment confirmation
    */
@@ -236,14 +267,12 @@ async getMoMoAccessToken() {
    */
   validateMTNPhone(phoneNumber) {
     const cleaned = phoneNumber.replace(/[\s\-\(\)]/g, '');
-
-    // Valid formats: +237XXXXXXXXX, 237XXXXXXXXX
     const validFormats = [
-      /^\+237\d{8,9}$/,   // +237XXXXXXXXX (9 or 10 digits)
-      /^237\d{8,9}$/,     // 237XXXXXXXXX
-
+      /^\+237\d{8,9}$/,
+      /^237\d{8,9}$/,
+      /^6\d{8}$/,
+      /^7\d{8}$/
     ];
-
     return validFormats.some((format) => format.test(cleaned));
   }
 
@@ -253,17 +282,15 @@ async getMoMoAccessToken() {
   formatMTNPhone(phoneNumber) {
     let cleaned = phoneNumber.replace(/[\s\-\(\)]/g, '');
 
-    // Remove leading 0 if present and add 237
     if (cleaned.startsWith('0')) {
       cleaned = '237' + cleaned.substring(1);
     }
 
-    // Add 237 if not present
-    if (!cleaned.startsWith('237')) {
+    if (!cleaned.startsWith('237') && !cleaned.startsWith('+237')) {
       cleaned = '237' + cleaned;
     }
 
-    return cleaned;
+    return cleaned.replace('+', '');
   }
 
   /**
@@ -273,10 +300,8 @@ async getMoMoAccessToken() {
     const donationForm = document.getElementById('donationForm');
     if (!donationForm) return;
 
-    // Check if already injected
     if (document.getElementById('mtnPhoneGroup')) return;
 
-    // Create MTN phone input group
     const mtnPhoneGroup = document.createElement('div');
     mtnPhoneGroup.id = 'mtnPhoneGroup';
     mtnPhoneGroup.className = 'form-group';
@@ -287,7 +312,7 @@ async getMoMoAccessToken() {
         type="tel" 
         id="mtnPhone" 
         class="form-control" 
-        placeholder="e.g., +237 6XX XXX XXX or 0XXXXXXXXX"
+        placeholder="e.g., +237 6XX XXX XXX or 6XXXXXXXX"
         autocomplete="off"
       />
       <small class="form-text text-muted">
@@ -295,7 +320,6 @@ async getMoMoAccessToken() {
       </small>
     `;
 
-    // Insert after payment method select
     const paymentMethodGroup = document.querySelector('[id*="paymentMethod"]')?.parentElement;
     if (paymentMethodGroup) {
       paymentMethodGroup.insertAdjacentElement('afterend', mtnPhoneGroup);
@@ -308,22 +332,23 @@ async getMoMoAccessToken() {
  */
 async function displayCampaignDonations(campaignId) {
   try {
-    const donations = await DonationManager.getDonationsByCampaign(campaignId);
+    const donations = JSON.parse(localStorage.getItem('donations') || '[]');
+    const campaignDonations = donations.filter(d => d.campaignId === campaignId && d.status === 'successful');
     const donationsContainer = document.getElementById('campaignDonations');
 
     if (!donationsContainer) return;
 
-    if (donations.length === 0) {
-      donationsContainer.innerHTML = '<p class="text-muted">No donations yet</p>';
+    if (campaignDonations.length === 0) {
+      donationsContainer.innerHTML = '<p class="text-muted">No donations yet. Be the first to donate!</p>';
       return;
     }
 
     let html = `
-      <h4>Recent Donations (${donations.length})</h4>
+      <h4>Recent Donations (${campaignDonations.length})</h4>
       <ul class="list-unstyled">
     `;
 
-    donations.forEach((donation) => {
+    campaignDonations.forEach((donation) => {
       html += `
         <li class="donation-item" style="padding: 10px; border-bottom: 1px solid #eee;">
           <strong>${sanitizeInput(donation.donorName)}</strong> donated 
@@ -385,7 +410,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.MTNPaymentHandler = mtnHandler;
 });
 
-// Make available globally
 window.MTNPaymentHandler = MTNPaymentHandler;
 window.displayCampaignDonations = displayCampaignDonations;
 window.displayCampaignProgress = displayCampaignProgress;

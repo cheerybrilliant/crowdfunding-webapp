@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,6 @@
             <li><a href="events.html">Events</a></li>
             <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
             <li><a href="about.html">About Us</a></li>
-         
         </ul>
     </nav>
 
@@ -44,16 +43,16 @@
                     <label for="videoUpload">Upload Short Live Video:</label>
                     <input type="file" id="videoUpload" name="videoUpload" accept="video/*" required>
                     <small style="color: #666;">
-                        Record a short video (30-60 seconds) introducing yourself and explaining your situation
+                        Record a short video (30-60 seconds) introducing yourself
                     </small>
                 </div>
 
-                <!-- Medical Documents (Optional) -->
+                <!-- Medical Documents -->
                 <div class="form-group">
                     <label for="medicalDocs">Upload Medical Documents (Optional):</label>
                     <input type="file" id="medicalDocs" name="medicalDocs" accept=".pdf,.jpg,.jpeg,.png" multiple>
                     <small style="color: #666;">
-                        You can upload medical reports, diagnosis letters, or hospital bills
+                        Medical reports, diagnosis letters, or hospital bills
                     </small>
                 </div>
 
@@ -61,7 +60,7 @@
                 <div class="form-group">
                     <label for="additionalInfo">Additional Information:</label>
                     <textarea id="additionalInfo" name="additionalInfo" rows="5" 
-                              placeholder="Tell us more about your situation, treatment needs, and how the funds will be used..."></textarea>
+                              placeholder="Tell us more about your situation..."></textarea>
                 </div>
 
                 <!-- Submit Button -->
@@ -70,8 +69,7 @@
 
             <!-- Disclaimer -->
             <div class="alert alert-info mt-2">
-                <strong>Important:</strong> Uploaded media helps hospitals review and verify patient requests. 
-                Your information will be kept confidential and only used for verification purposes. 
+                <strong>Important:</strong> Your information will be kept confidential. 
                 Once verified, you can create your fundraising campaign.
             </div>
 
@@ -79,7 +77,7 @@
             <div class="card mt-2">
                 <h3>What Happens Next?</h3>
                 <ol style="line-height: 2;">
-                    <li>Your documents will be reviewed by our partner hospitals</li>
+                    <li>Your documents will be reviewed by partner hospitals</li>
                     <li>Verification typically takes 2-3 business days</li>
                     <li>You will receive an email notification once verified</li>
                     <li>After verification, you can create your fundraising campaign</li>
@@ -99,12 +97,10 @@
         document.getElementById('verificationForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get form values
             const profilePicture = document.getElementById('profilePicture').files[0];
             const videoUpload = document.getElementById('videoUpload').files[0];
             const additionalInfo = document.getElementById('additionalInfo').value;
             
-            // Validate file uploads
             if (!profilePicture) {
                 showAlert('Please upload a profile picture', 'error');
                 return;
@@ -115,7 +111,7 @@
                 return;
             }
             
-            // Check file sizes (example: max 10MB for images, 50MB for videos)
+            // Check file sizes
             if (profilePicture.size > 10 * 1024 * 1024) {
                 showAlert('Profile picture must be less than 10MB', 'error');
                 return;
@@ -126,49 +122,45 @@
                 return;
             }
             
-            // In a real application, files would be uploaded to a server
-            // For this demo, we'll just show a success message
-            
-            showAlert('Verification documents submitted successfully! You will receive an email once your account is verified.', 'success');
-            
-            // Clear form
-            document.getElementById('verificationForm').reset();
             // Mark patient as verified
-const currentUser = getCurrentUser();
-if (currentUser && currentUser.accountType === 'patient') {
-    currentUser.verified = true;
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            const currentUser = getCurrentUser();
+            if (currentUser && currentUser.accountType === 'patient') {
+                currentUser.verified = true;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-    // Also update in the full user database
-    const users = getUserDatabase();
-    const userIndex = users.findIndex(u => u.email === currentUser.email);
-    if (userIndex !== -1) {
-        users[userIndex].verified = true;
-        localStorage.setItem('userDatabase', JSON.stringify(users));
-    }
-}
-        
+                // Update in database
+                const users = getUserDatabase();
+                const userIndex = users.findIndex(u => u.email === currentUser.email);
+                if (userIndex !== -1) {
+                    users[userIndex].verified = true;
+                    localStorage.setItem('userDatabase', JSON.stringify(users));
+                }
+            }
             
+            showAlert('Verification submitted successfully!', 'success');
+            document.getElementById('verificationForm').reset();
+            
+            // FIXED: Redirect to patient dashboard
+            setTimeout(() => {
+                window.location.href = 'patient-dashboard.html';
+            }, 2000);
         });
         
-        // Check if user is logged in and is a patient
+        // Check authentication on load
         window.addEventListener('load', function() {
             const user = getCurrentUser();
             if (!user) {
                 showAlert('Please create an account first', 'error');
-                 
+                setTimeout(() => {
                     window.location.href = 'create-account.html';
-                }  
-            else if (!user.verified) {
-                // User is not verified, allow verification process to continue
-            } else {
+                }, 1500);
+            } else if (user.verified) {
                 showAlert('Your account is already verified', 'info');
-                
+                setTimeout(() => {
                     window.location.href = 'patient-dashboard.html';
-                
+                }, 1500);
             }
         });
     </script>
 </body>
 </html>
-

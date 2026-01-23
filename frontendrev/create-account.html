@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -49,11 +49,12 @@
                     <label for="fullName">Full Name:</label>
                     <input type="text" id="fullName" name="fullName" required>
                 </div>
+
                 <!-- Email -->
-<div class="form-group">
-    <label for="email">Email Address:</label>
-    <input type="email" id="email" name="email" required>
-</div>
+                <div class="form-group">
+                    <label for="email">Email Address:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
 
                 <!-- Phone Number -->
                 <div class="form-group">
@@ -65,8 +66,7 @@
                 <div class="form-group">
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password" required>
-                    <!-- Add this below the password input -->
-<div id="passwordStrength" style="color: red; font-size: 0.9em; margin-bottom: 8px;"></div>
+                    <div id="passwordStrength" style="color: red; font-size: 0.9em; margin-top: 5px;"></div>
                 </div>
 
                 <!-- Confirm Password -->
@@ -97,72 +97,67 @@
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
     </footer>
 
+    <!-- ONLY LOAD script.js -->
     <script src="script.js"></script>
-    <script src="api.js"></script>
-    <script>
     
-    // Handle form submission
-    document.getElementById('createAccountForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Get form values
-        const fullName    = document.getElementById('fullName').value.trim();
-        const email       = document.getElementById('email').value.trim();
-        const phone       = document.getElementById('phone').value.trim();
-        const password    = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        const accountType = document.querySelector('input[name="accountType"]:checked').value;
+    <script>
+        // Handle form submission
+        document.getElementById('createAccountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const accountType = document.querySelector('input[name="accountType"]:checked').value;
 
-        // Validate inputs
-        if (!validateEmail(email)) {
-            showAlert('Please enter a valid email address', 'error');
-            return;
-        }
-
-        const pwCheck = validatePassword(password);
-        if (!pwCheck.isValid) {
-            showAlert(pwCheck.message, 'error');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            showAlert('Passwords do not match', 'error');
-            return;
-        }
-
-        // Check for duplicate email
-        const users = getUserDatabase();
-        if (users.some(user => user.email.toLowerCase() === email.toLowerCase())) {
-            showAlert('This email is already registered. Please use a different email.', 'error');
-            return;
-        }
-
-        // Prepare and save user data (using your existing functions from script.js)
-        const userData = {
-            fullName,
-            email,
-            phone,
-            password,           // will be hashed inside saveUserData
-            accountType,
-            verified: accountType === 'donor'   // donors auto-verified, patients need verification
-        };
-
-        saveUserData(userData);
-
-        showAlert('Account created successfully!', 'success');
-
-        // Redirect based on account type
-         
-            if (accountType === 'patient') {
-                window.location.href = 'verification.html';
-            } else {
-                window.location.href = 'donor-dashboard.html';
+            // Validate
+            if (!validateEmail(email)) {
+                showAlert('Please enter a valid email address', 'error');
+                return;
             }
-        
-    });
+
+            const pwCheck = validatePassword(password);
+            if (!pwCheck.isValid) {
+                showAlert(pwCheck.message, 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match', 'error');
+                return;
+            }
+
+            // Check duplicate
+            const users = getUserDatabase();
+            if (users.some(user => user.email.toLowerCase() === email.toLowerCase())) {
+                showAlert('This email is already registered', 'error');
+                return;
+            }
+
+            // Save user
+            const userData = {
+                fullName,
+                email,
+                phone,
+                password,
+                accountType,
+                verified: accountType === 'donor'
+            };
+
+            saveUserData(userData);
+            showAlert('Account created successfully!', 'success');
+
+            // FIXED: Proper redirect
+            setTimeout(() => {
+                if (accountType === 'patient') {
+                    window.location.href = 'verification.html';
+                } else {
+                    window.location.href = 'donor-dashboard.html';
+                }
+            }, 1000);
+        });
     </script>
-    <script src="api-client.js"></script>
-    <script src="backend-integration.js"></script>
 </body>
 </html>
-

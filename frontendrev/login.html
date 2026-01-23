@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -58,101 +58,95 @@
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
     </footer>
 
+    <!-- ONLY LOAD script.js - REMOVED backend-integration.js and api.js -->
     <script src="script.js"></script>
-    <script src="api.js"></script>
 
+    <script>
+        // SECRET ADMIN CREDENTIALS
+        const SECRET_ADMIN_USERNAME = "adminsecret";
+        const SECRET_ADMIN_PASSWORD = "CancerCareAdmin2026!";
 
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
 
-<script>
-    // SECRET ADMIN CREDENTIALS – CHANGE THESE IMMEDIATELY!
-    const SECRET_ADMIN_USERNAME = "adminsecret";            // ← Change to your secret username
-    const SECRET_ADMIN_PASSWORD = "CancerCareAdmin2026!";   // ← Change to a very strong password
+            // === ADMIN CHECK ===
+            if (email === SECRET_ADMIN_USERNAME && password === SECRET_ADMIN_PASSWORD) {
+                const adminSession = {
+                    username: SECRET_ADMIN_USERNAME,
+                    role: 'admin',
+                    sessionToken: generateSecureToken(),
+                    loginTime: new Date().toISOString(),
+                    expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
+                };
 
-    // Handle login form submission
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Get form values
-        const email    = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
+                localStorage.setItem('adminSession', JSON.stringify(adminSession));
+                localStorage.setItem('currentUser', JSON.stringify(adminSession));
 
-        // === SECRET ADMIN CHECK – FIRST PRIORITY ===
-        if (email === SECRET_ADMIN_USERNAME && password === SECRET_ADMIN_PASSWORD) {
-            // Admin detected!
-            const adminSession = {
-                username: SECRET_ADMIN_USERNAME,
-                role: 'admin',
-                sessionToken: generateSecureToken(),
-                loginTime: new Date().toISOString(),
-                expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() // 2-hour session
-            };
-
-            localStorage.setItem('adminSession', JSON.stringify(adminSession));
-            localStorage.setItem('currentUser', JSON.stringify(adminSession)); // Reuse for compatibility
-
-            showAlert('Admin access granted! Redirecting to Admin Panel...', 'success');
-
-             {
-                window.location.href = 'admin-panel.html'; // ← Change to your actual admin page name
-            };
-
-            return; // Stop normal login
-        }
-
-        // === Normal User Login (patient/donor) ===
-        if (!validateEmail(email)) {
-            showAlert('Please enter a valid email address', 'error');
-            return;
-        }
-
-        if (password.length < 8) {
-            showAlert('Password must be at least 8 characters long', 'error');
-            return;
-        }
-
-        // Get all registered users from localStorage
-        const users = getUserDatabase();
-
-        // Find user by email (case-insensitive)
-        const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-        if (!user) {
-            showAlert('No account found with this email', 'error');
-            return;
-        }
-
-        // Check password
-        const hashedInput = hashPassword(password);
-        if (hashedInput !== user.passwordHash) {
-            showAlert('Incorrect password', 'error');
-            return;
-        }
-
-        // Success: Create user session
-        const currentUser = {
-            fullName: user.fullName,
-            email: user.email,
-            phone: user.phone || '',
-            accountType: user.accountType,
-            verified: user.verified || false,
-            sessionToken: generateSecureToken(),
-            registrationDate: user.registrationDate || new Date().toISOString(),
-            loginTime: new Date().toISOString()
-        };
-
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-        showAlert('Login successful!', 'success');
-
-        // Redirect based on account type and verification status
-        setTimeout(() => {
-            if (user.accountType === 'patient' && !user.verified) {
-                window.location.href = 'verification.html';
-            } else if (user.accountType === 'patient') {
-                window.location.href = 'patient-dashboard.html';
-            } else {
-                window.location.href = 'donor-dashboard.html';
+                showAlert('Admin access granted! Redirecting...', 'success');
+                
+                // FIXED: Removed the unnecessary block
+                setTimeout(() => {
+                    window.location.href = 'admin-panel.html';
+                }, 1000);
+                
+                return;
             }
-        }, 1000);
-    });
-</script>
+
+            // === NORMAL USER LOGIN ===
+            if (!validateEmail(email)) {
+                showAlert('Please enter a valid email address', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                showAlert('Password must be at least 8 characters long', 'error');
+                return;
+            }
+
+            const users = getUserDatabase();
+            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+            if (!user) {
+                showAlert('No account found with this email', 'error');
+                return;
+            }
+
+            const hashedInput = hashPassword(password);
+            if (hashedInput !== user.passwordHash) {
+                showAlert('Incorrect password', 'error');
+                return;
+            }
+
+            // Create session
+            const currentUser = {
+                fullName: user.fullName,
+                email: user.email,
+                phone: user.phone || '',
+                accountType: user.accountType,
+                verified: user.verified || false,
+                sessionToken: generateSecureToken(),
+                registrationDate: user.registrationDate || new Date().toISOString(),
+                loginTime: new Date().toISOString()
+            };
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showAlert('Login successful!', 'success');
+
+            // FIXED: Proper redirect without unnecessary blocks
+            setTimeout(() => {
+                if (user.accountType === 'patient' && !user.verified) {
+                    window.location.href = 'verification.html';
+                } else if (user.accountType === 'patient') {
+                    window.location.href = 'patient-dashboard.html';
+                } else {
+                    window.location.href = 'donor-dashboard.html';
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
