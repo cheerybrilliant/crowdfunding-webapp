@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+ import { Request, Response } from 'express';
 import * as donationService from './donation.service';
 import { validate } from './validate.middleware';
 import Joi from 'joi';
@@ -7,7 +7,7 @@ const donationSchema = Joi.object({
   amount: Joi.number().min(500).required(),
   donorName: Joi.string().optional(),
   donorPhone: Joi.string().required(),
-  paymentMethod: Joi.string().valid('mtn', 'orange', 'paystack', 'bank').required(),
+  paymentMethod: Joi.string().valid('mtn').required(),  // only mtn
   campaignId: Joi.string().optional(),
   eventId: Joi.string().optional(),
   message: Joi.string().optional(),
@@ -19,27 +19,25 @@ export const createDonation = [
     try {
       const donation = await donationService.createDonation(req.body);
 
-      if (req.body.paymentMethod === 'mtn') {
-        const paymentResponse = await donationService.initiateMTNPayment(
-          donation.id,
-          req.body.amount,
-          req.body.donorPhone,
-          req.body.donorName || 'Anonymous'
-        );
+      const paymentResponse = await donationService.initiateMTNPayment(
+        donation.id,
+        req.body.amount,
+        req.body.donorPhone,
+        req.body.donorName || 'Anonymous'
+      );
 
-        return res.status(201).json({
-          donation,
-          paymentResponse,
-          message: 'MTN payment initiated. Awaiting customer confirmation.',
-        });
-      }
-
-      res.status(201).json({
+      return res.status(201).json({
         donation,
-        message: 'Donation created. Please complete payment.',
+        payment: {
+          status: 'PENDING',
+          requestId: paymentResponse.requestId || donation.id,
+          message: 'MTN payment request sent. Awaiting customer confirmation on phone.',
+          pollUrl: `/api/donations/mtn-status/${donation.id}`,
+        },
+        message: 'Donation created. Please complete payment on your phone.',
       });
     } catch (err: any) {
-      res.status(400).json({ message: err.message });
+      res.status(400).json({ message: err.message || 'Failed to initiate donation' });
     }
   },
 ];
@@ -54,7 +52,7 @@ export const checkMTNPaymentStatus = async (req: Request, res: Response) => {
       status,
     });
   } catch (err: any) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ message: err.message || 'Status check failed' });
   }
 };
 
@@ -84,20 +82,4 @@ export const getCampaignDonations = async (req: Request, res: Response) => {
   }
 };
 
-export const webhook = async (req: Request, res: Response) => {
-  try {
-    // Handle Paystack webhook
-    const event = req.body;
-
-    if (event.event === 'charge.success') {
-      const reference = event.data.reference;
-      // Find donation by reference and update status
-      // This would require a database lookup by reference
-      console.log('Paystack webhook received:', reference);
-    }
-
-    res.status(200).json({ success: true });
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
-  }
-};
+// Removed completely: webhook (was Paystack-specific)

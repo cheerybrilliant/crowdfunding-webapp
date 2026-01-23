@@ -1,4 +1,4 @@
-import prisma from './prisma.service';
+ import prisma from './prisma.service';
 import { mtnPaymentService } from './mtn.service';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -10,7 +10,7 @@ export const createDonation = async (data: any) => {
       id: donationId,
       amount: data.amount,
       donorName: data.donorName || 'Anonymous',
-      donorPhone: data.donorPhone,
+      donorPhone: data.donorPhone.replace(/^\+/, ''), // normalize
       paymentMethod: data.paymentMethod,
       message: data.message,
       campaignId: data.campaignId,
@@ -22,7 +22,11 @@ export const createDonation = async (data: any) => {
   return donation;
 };
 
-export const updateDonationStatus = async (donationId: string, status: string, reference?: string) => {
+export const updateDonationStatus = async (
+  donationId: string,
+  status: string,
+  reference?: string
+) => {
   const donation = await prisma.donation.update({
     where: { id: donationId },
     data: {
@@ -31,15 +35,10 @@ export const updateDonationStatus = async (donationId: string, status: string, r
     },
   });
 
-  // Update campaign raisedAmount if donation is successful
   if (status === 'success' && donation.campaignId) {
     await prisma.campaign.update({
       where: { id: donation.campaignId },
-      data: {
-        raisedAmount: {
-          increment: donation.amount,
-        },
-      },
+      data: { raisedAmount: { increment: donation.amount } },
     });
   }
 
@@ -49,22 +48,14 @@ export const updateDonationStatus = async (donationId: string, status: string, r
 export const getDonationById = async (id: string) => {
   return await prisma.donation.findUnique({
     where: { id },
-    include: {
-      campaign: true,
-      event: true,
-    },
+    include: { campaign: true, event: true },
   });
 };
 
 export const getDonationsByCampaign = async (campaignId: string) => {
   return await prisma.donation.findMany({
-    where: {
-      campaignId,
-      status: 'success',
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
+    where: { campaignId, status: 'success' },
+    orderBy: { createdAt: 'desc' },
   });
 };
 
@@ -72,20 +63,24 @@ export const initiateMTNPayment = async (
   donationId: string,
   amount: number,
   phoneNumber: string,
-  donorName: string
+  donorName: string,
+  payerMessage?: string
 ) => {
   try {
+    const normalizedPhone = phoneNumber.startsWith('237')
+      ? phoneNumber
+      : `237${phoneNumber.replace(/^0|^237|\+/g, '')}`;
+
     const paymentRequest = mtnPaymentService.preparePaymentRequest(
       amount,
-      phoneNumber,
+      normalizedPhone,
       donationId,
-      `Donation from ${donorName}`,
+      payerMessage || `Donation from ${donorName || 'Anonymous'}`,
       'Cancer Care Donation'
     );
 
     const response = await mtnPaymentService.initiatePayment(paymentRequest);
 
-    // Update donation with request ID
     await prisma.donation.update({
       where: { id: donationId },
       data: {
@@ -96,7 +91,6 @@ export const initiateMTNPayment = async (
 
     return response;
   } catch (error) {
-    // Update donation status to failed
     await updateDonationStatus(donationId, 'failed');
     throw error;
   }
@@ -104,19 +98,26 @@ export const initiateMTNPayment = async (
 
 export const checkMTNPaymentStatus = async (donationId: string) => {
   const donation = await getDonationById(donationId);
-
   if (!donation || !donation.requestId) {
     throw new Error('Donation or request ID not found');
   }
 
   const statusResponse = await mtnPaymentService.checkPaymentStatus(donation.requestId);
 
-  // Update donation status based on MTN response
-  if (statusResponse.status === 'SUCCESS') {
+  let newStatus = 'pending';
+  const mtnStatus = statusResponse.status?.toUpperCase();
+
+  if (['SUCCESSFUL', 'SUCCESS'].includes(mtnStatus)) {
+    newStatus = 'success';
     await updateDonationStatus(donationId, 'success', donation.requestId);
-  } else if (statusResponse.status === 'FAILED') {
+  } else if (['FAILED', 'REJECTED', 'EXPIRED', 'CANCELLED'].includes(mtnStatus)) {
+    newStatus = 'failed';
     await updateDonationStatus(donationId, 'failed');
   }
 
-  return statusResponse;
+  return {
+    status: newStatus,
+    mtnStatus: statusResponse.status,
+    details: statusResponse,
+  };
 };

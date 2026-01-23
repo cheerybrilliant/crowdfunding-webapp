@@ -14,8 +14,7 @@ export const config = {
   JWT_SECRET: process.env.JWT_SECRET || 'your_jwt_secret_key_change_this_in_production',
   JWT_EXPIRE: '7d',
 
-  // Paystack
-  PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY || '',
+
 
   // MTN Payment
   MTN: {
