@@ -32,9 +32,21 @@ const userSchema: Schema = new Schema<IUser>({
 });
 
 // Optional: Add indexes, virtuals, pre-save hooks (e.g., hash password)
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function (this: IUser) {
   // hash password logic here if using bcrypt
-  next();
+  if(this.isModified('password')) {
+   try {
+     const bcrypt = await import('bcryptjs');
+     const salt = await bcrypt.genSalt(10);
+     this.password = await bcrypt.hash(this.password, salt);
+   } catch (error) {
+     throw new Error('Error hashing password');
+   }
+   
+   
+   
+    // e.g., this.password = await bcrypt.hash(this.password, 10);
+  }
 });
 
 const User = mongoose.model<IUser>('User', userSchema);
