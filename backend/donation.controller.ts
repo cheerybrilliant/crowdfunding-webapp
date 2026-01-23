@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import * as donationService from './donation.service';
-import { auth } from './auth.middleware';
 import { validate } from './validate.middleware';
 import Joi from 'joi';
 
