@@ -16,8 +16,7 @@
             <li><a href="events.html">Events</a></li>
             <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
             <li><a href="about.html">About Us</a></li>
-            <li><a href="login.html">Login</a></li>
-            <li><a href="create-account.html">Create Account</a></li>
+         
         </ul>
     </nav>
 
@@ -134,11 +133,22 @@
             
             // Clear form
             document.getElementById('verificationForm').reset();
+            // Mark patient as verified
+const currentUser = getCurrentUser();
+if (currentUser && currentUser.accountType === 'patient') {
+    currentUser.verified = true;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+    // Also update in the full user database
+    const users = getUserDatabase();
+    const userIndex = users.findIndex(u => u.email === currentUser.email);
+    if (userIndex !== -1) {
+        users[userIndex].verified = true;
+        localStorage.setItem('userDatabase', JSON.stringify(users));
+    }
+}
+        
             
-            // Redirect to home page after delay
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 3000);
         });
         
         // Check if user is logged in and is a patient
@@ -146,14 +156,16 @@
             const user = getCurrentUser();
             if (!user) {
                 showAlert('Please create an account first', 'error');
-                setTimeout(() => {
+                 
                     window.location.href = 'create-account.html';
-                }, 2000);
-            } else if (user.accountType !== 'patient') {
-                showAlert('This page is only for patient accounts', 'error');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 2000);
+                }  
+            else if (!user.verified) {
+                // User is not verified, allow verification process to continue
+            } else {
+                showAlert('Your account is already verified', 'info');
+                
+                    window.location.href = 'patient-dashboard.html';
+                
             }
         });
     </script>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Cancer Patient Support Platform</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -12,12 +13,6 @@
         <a href="index.html" class="logo">CancerCare</a>
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
-            <li><a href="campaigns.html">Campaigns</a></li>
-            <li><a href="events.html">Events</a></li>
-            <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="login.html">Login</a></li>
-            <li><a href="create-account.html">Create Account</a></li>
             <li><a href="hospital-login.html" style="background-color: #e74c3c; padding: 0.5rem 1rem; border-radius: 5px;">Hospital Login</a></li>
         </ul>
     </nav>
@@ -65,50 +60,99 @@
 
     <script src="script.js"></script>
     <script src="api.js"></script>
-    <script>
-        // Handle form submission
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            // Validate email
-            if (!validateEmail(email)) {
-                showAlert('Please enter a valid email address', 'error');
-                return;
-            }
-            
-            // Validate password
-            if (!validatePassword(password)) {
-                showAlert('Password must be at least 6 characters long', 'error');
-                return;
-            }
-            
-            try {
-                // Call backend API
-                const response = await authAPI.login(email, password);
-                
-                if (response && response.user) {
-                    showAlert('Login successful!', 'success');
-                    
-                    // Redirect based on account type
-                    setTimeout(() => {
-                        if (response.user.accountType === 'patient') {
-                            window.location.href = 'patient-dashboard.html';
-                        } else {
-                            window.location.href = 'donor-dashboard.html';
-                        }
-                    }, 1500);
-                }
-            } catch (error) {
-                showAlert(error.message || 'Login failed. Please check your credentials.', 'error');
-            }
-        });
-    </script>
-    <script src="api-client.js"></script>
-    <script src="backend-integration.js"></script>
-</body>
-</html>
 
+
+
+<script>
+    // SECRET ADMIN CREDENTIALS – CHANGE THESE IMMEDIATELY!
+    const SECRET_ADMIN_USERNAME = "adminsecret";            // ← Change to your secret username
+    const SECRET_ADMIN_PASSWORD = "CancerCareAdmin2026!";   // ← Change to a very strong password
+
+    // Handle login form submission
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const email    = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        // === SECRET ADMIN CHECK – FIRST PRIORITY ===
+        if (email === SECRET_ADMIN_USERNAME && password === SECRET_ADMIN_PASSWORD) {
+            // Admin detected!
+            const adminSession = {
+                username: SECRET_ADMIN_USERNAME,
+                role: 'admin',
+                sessionToken: generateSecureToken(),
+                loginTime: new Date().toISOString(),
+                expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() // 2-hour session
+            };
+
+            localStorage.setItem('adminSession', JSON.stringify(adminSession));
+            localStorage.setItem('currentUser', JSON.stringify(adminSession)); // Reuse for compatibility
+
+            showAlert('Admin access granted! Redirecting to Admin Panel...', 'success');
+
+            setTimeout(() => {
+                window.location.href = 'admin-panel.html'; // ← Change to your actual admin page name
+            }, 1500);
+
+            return; // Stop normal login
+        }
+
+        // === Normal User Login (patient/donor) ===
+        if (!validateEmail(email)) {
+            showAlert('Please enter a valid email address', 'error');
+            return;
+        }
+
+        if (password.length < 8) {
+            showAlert('Password must be at least 8 characters long', 'error');
+            return;
+        }
+
+        // Get all registered users from localStorage
+        const users = getUserDatabase();
+
+        // Find user by email (case-insensitive)
+        const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+        if (!user) {
+            showAlert('No account found with this email', 'error');
+            return;
+        }
+
+        // Check password
+        const hashedInput = hashPassword(password);
+        if (hashedInput !== user.passwordHash) {
+            showAlert('Incorrect password', 'error');
+            return;
+        }
+
+        // Success: Create user session
+        const currentUser = {
+            fullName: user.fullName,
+            email: user.email,
+            phone: user.phone || '',
+            accountType: user.accountType,
+            verified: user.verified || false,
+            sessionToken: generateSecureToken(),
+            registrationDate: user.registrationDate || new Date().toISOString(),
+            loginTime: new Date().toISOString()
+        };
+
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+        showAlert('Login successful!', 'success');
+
+        // Redirect based on account type and verification status
+        setTimeout(() => {
+            if (user.accountType === 'patient' && !user.verified) {
+                window.location.href = 'verification.html';
+            } else if (user.accountType === 'patient') {
+                window.location.href = 'patient-dashboard.html';
+            } else {
+                window.location.href = 'donor-dashboard.html';
+            }
+        }, 1500);
+    });
+</script>

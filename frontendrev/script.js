@@ -147,7 +147,8 @@ function saveUserData(userData) {
         userType: sanitizeInput(userData.userType || userData.accountType),
         verified: userData.verified,
         sessionToken: generateSecureToken(),
-        registrationDate: new Date().toISOString()
+        registrationDate: new Date().toISOString(),
+        loginTime: new Date().toISOString()
     };
 
     // Store in localStorage
@@ -591,3 +592,78 @@ window.addEventListener('load', function() {
     }
 });
 
+// Shared Notification System (visible to all logged-in users)
+
+// Add a new notification (called by admin actions)
+function addAdminNotification(title, message, type = 'info') {
+    let notifications = JSON.parse(localStorage.getItem('globalNotifications') || '[]');
+    
+    const newNotif = {
+        id: Date.now(),
+        title: title,
+        message: message,
+        type: type, // 'success', 'info', 'warning', 'danger'
+        timestamp: new Date().toISOString(),
+        read: false
+    };
+    
+    notifications.unshift(newNotif); // Add to top
+    localStorage.setItem('globalNotifications', JSON.stringify(notifications));
+    
+    updateNotificationUI();
+}
+
+// Update the bell and dropdown UI
+function updateNotificationUI() {
+    const dropdown = document.getElementById('notificationDropdown');
+    const badge = document.querySelector('.notification-count');
+    
+    if (!dropdown || !badge) return;
+    
+    const notifications = JSON.parse(localStorage.getItem('globalNotifications') || '[]');
+    const unreadCount = notifications.filter(n => !n.read).length;
+    
+    badge.textContent = unreadCount;
+    badge.style.display = unreadCount > 0 ? 'inline' : 'none';
+    
+    dropdown.innerHTML = '';
+    
+    if (notifications.length === 0) {
+        dropdown.innerHTML = '<li><div class="dropdown-item text-center text-muted">No new updates</div></li>';
+        return;
+    }
+    
+    notifications.forEach(notif => {
+        const item = document.createElement('li');
+        item.innerHTML = `
+            <div class="dropdown-item notification-item ${notif.read ? 'read' : ''}" data-id="${notif.id}" style="cursor:pointer; padding: 10px; border-bottom: 1px solid #eee;">
+                <strong>${notif.title}</strong><br>
+                <small>${notif.message}</small><br>
+                <small class="text-muted">${new Date(notif.timestamp).toLocaleString()}</small>
+            </div>
+        `;
+        dropdown.appendChild(item);
+    });
+    
+    // Mark as read when clicked
+    dropdown.querySelectorAll('.notification-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const id = this.dataset.id;
+            notifications = notifications.map(n => {
+                if (n.id == id) n.read = true;
+                return n;
+            });
+            localStorage.setItem('globalNotifications', JSON.stringify(notifications));
+            updateNotificationUI();
+        });
+    });
+}
+
+// Load notifications on every page
+window.addEventListener('load', updateNotificationUI);
+
+// Optional: Clear all notifications (for admin use)
+function clearAllNotifications() {
+    localStorage.removeItem('globalNotifications');
+    updateNotificationUI();
+}

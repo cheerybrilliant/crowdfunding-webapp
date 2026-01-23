@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Dashboard - Cancer Patient Support Platform</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         .dashboard-header {
             background: var(--primary-blue);
@@ -88,6 +89,15 @@
             <li><a href="campaigns.html">All Campaigns</a></li>
             <li><a href="events.html">Events</a></li>
             <li><a href="about.html">About Us</a></li>
+            <li class="nav-item dropdown">
+    <a href="#" class="nav-link dropdown-toggle" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-bell"></i> <!-- Font Awesome bell icon -->
+        <span class="badge bg-danger notification-count" style="display:none;">0</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" id="notificationDropdown" aria-labelledby="notificationBell" style="max-height: 400px; overflow-y: auto; width: 350px;">
+        <!-- Notifications appear here -->
+    </ul>
+</li>
             <li><a href="#" id="logoutBtn">Logout</a></li>
         </ul>
     </nav>
@@ -210,9 +220,9 @@
 
             if (!currentUser || currentUser.userType !== 'patient') {
                 showAlert('Please login as a patient to access this page', 'error');
-                setTimeout(() => {
+                
                     window.location.href = 'login.html';
-                }, 2000);
+              
                 return;
             }
 

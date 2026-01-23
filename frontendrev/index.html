@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Cancer Patient Support Platform</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -16,8 +17,15 @@
             <li><a href="events.html">Events</a></li>
             <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
             <li><a href="about.html">About Us</a></li>
-            <li><a href="login.html">Login</a></li>
-            <li><a href="create-account.html">Create Account</a></li>
+            <li class="nav-item dropdown">
+    <a href="#" class="nav-link dropdown-toggle" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-bell"></i> <!-- Font Awesome bell icon -->
+        <span class="badge bg-danger notification-count" style="display:none;">0</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" id="notificationDropdown" aria-labelledby="notificationBell" style="max-height: 400px; overflow-y: auto; width: 350px;">
+        <!-- Notifications appear here -->
+    </ul>
+</li>
             <li><a href="hospital-login.html" style="background-color: #e74c3c; padding: 0.5rem 1rem; border-radius: 5px;">Hospital Login</a></li>
         </ul>
     </nav>
@@ -393,6 +401,65 @@
             }
         });
     </script>
+    <script>
+    // Dynamic Navbar Update - Runs on every page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const navLinks = document.querySelector('.nav-links');
+        const user = getCurrentUser();
+
+        // Helper: Create a nav <li> element
+        function createNavItem(text, href, isSpecial = false) {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.textContent = text;
+            a.href = href;
+            if (isSpecial) {
+                a.style.backgroundColor = '#e74c3c';
+                a.style.padding = '0.5rem 1rem';
+                a.style.borderRadius = '5px';
+                a.style.color = '#fff';
+            }
+            li.appendChild(a);
+            return li;
+        }
+
+        // 1. Check if user is logged in
+        if (user && user.sessionToken) {
+            // Check session age (2 hours = 7200000 ms)
+            const loginTime = new Date(user.loginTime || new Date()).getTime(); // fallback if no loginTime
+            const now = Date.now();
+            const sessionAgeMs = now - loginTime;
+            const twoHoursMs = 2 * 60 * 60 * 1000; // 2 hours
+
+            if (sessionAgeMs < twoHoursMs) {
+                // Session active → redirect Login to dashboard
+                let dashboardUrl = 'index.html'; // fallback
+                if (user.accountType === 'patient') {
+                    dashboardUrl = 'patient-dashboard.html';
+                } else if (user.accountType === 'donor') {
+                    dashboardUrl = 'donor-dashboard.html';
+                }
+
+                // Add "Login" that redirects to dashboard
+                navLinks.appendChild(createNavItem('My Dashboard', dashboardUrl));
+            } else {
+                // Session expired → treat as logged out
+                localStorage.removeItem('currentUser'); // clean up
+                navLinks.appendChild(createNavItem('Login', 'login.html'));
+                navLinks.appendChild(createNavItem('Create Account', 'create-account.html'));
+            }
+
+            // Hide "Create Account" completely when logged in
+        } else {
+            // Logged out → show both
+            navLinks.appendChild(createNavItem('Login', 'login.html'));
+            navLinks.appendChild(createNavItem('Create Account', 'create-account.html'));
+        }
+
+        // Hospital Login stays at the end (always visible)
+        navLinks.appendChild(createNavItem('Hospital Login', 'hospital-login.html', true));
+    });
+</script>
 </body>
 </html>
 

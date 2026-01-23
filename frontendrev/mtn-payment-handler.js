@@ -111,39 +111,101 @@ class MTNPaymentHandler {
    * Handle MTN payment flow
    */
   async handleMTNPaymentFlow() {
+   /**
+ * Handle MTN payment flow - REAL MTN MoMo API integration
+ */
     try {
-      // Show payment confirmation prompt
-      const confirmPayment = confirm(
-        `A payment prompt will be sent to your MTN phone (${this.currentDonation.donorPhone}).\n\n` +
-          'Please confirm the payment on your phone to complete the donation.\n\n' +
-          'Click OK to proceed.'
-      );
+        // Show payment confirmation prompt
+        const confirmPayment = confirm(
+            `A payment prompt will be sent to your MTN phone (${this.currentDonation.donorPhone}).\n\n` +
+            'Please confirm the payment on your phone to complete the donation.\n\n' +
+            'Click OK to proceed.'
+        );
 
-      if (!confirmPayment) {
-        showAlert('Payment cancelled', 'info');
+        if (!confirmPayment) {
+            showAlert('Payment cancelled', 'info');
+            this.paymentInProgress = false;
+            return;
+        }
+
+        // Show waiting UI
+        const waitDiv = this.showPaymentWaitingUI();
+
+        // === REAL MTN MoMo API CALLS START HERE ===
+
+        // 1. Get access token
+        const token = await this.getMoMoAccessToken();
+
+        // 2. Generate unique reference ID
+        const referenceId = crypto.randomUUID();
+
+        // 3. Initiate Request to Pay
+        const payload = {
+            amount: this.currentDonation.amount.toString(),
+            currency: 'XAF',  // Change to 'EUR' if testing in sandbox
+            externalId: `donation_${this.currentDonation.id}_${Date.now()}`,
+            payer: {
+                partyIdType: 'MSISDN',
+                partyId: this.currentDonation.donorPhone
+            },
+            payerMessage: 'Donation to CancerCare Event',
+            payeeNote: 'Thank you for your support!'
+        };
+
+        const initiateResponse = await fetch('https://sandbox.momodeveloper.mtn.com/collection/v1_0/requesttopay', {  // Change to production URL later
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'X-Reference-Id': referenceId,
+                'X-Target-Environment': 'sandbox',  // Change to '237' for Cameroon production
+                'Content-Type': 'application/json',
+                'Ocp-Apim-Subscription-Key': '0fb3b33116c547ff952f429e5036ae0e'  // ← Replace with your key
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!initiateResponse.ok) {
+            const err = await initiateResponse.json();
+            throw new Error(err.message || 'Failed to initiate MTN payment request');
+        }
+
+        // 4. Update donation with referenceId (for polling)
+        await DonationManager.updateDonation(this.currentDonation.id, { referenceId });
+
+        // 5. Start polling for status (your existing function)
+        await DonationManager.pollMTNPaymentStatus(this.currentDonation.id, referenceId);
+
+        // Payment successful → remove waiting UI
+        if (waitDiv) waitDiv.remove();
+
+        showAlert('Payment successful! Thank you for your donation.', 'success');
         this.paymentInProgress = false;
-        return;
-      }
 
-      // Show waiting message
-      const waitDiv = this.showPaymentWaitingUI();
-
-      // Poll for payment status
-      await DonationManager.pollMTNPaymentStatus(this.currentDonation.id);
-
-      // Remove waiting message after polling
-      if (waitDiv) {
-        waitDiv.remove();
-      }
-
-      this.paymentInProgress = false;
     } catch (error) {
-      console.error('MTN payment flow error:', error);
-      showAlert('Error processing MTN payment', 'danger');
-      this.paymentInProgress = false;
+        console.error('MTN payment flow error:', error);
+        showAlert(error.message || 'Error processing MTN payment. Please try again.', 'danger');
+        if (waitDiv) waitDiv.remove();
+        this.paymentInProgress = false;
     }
-  }
+}
 
+/**
+ * Get MTN MoMo access token
+ */
+async getMoMoAccessToken() {
+    const basicAuth = btoa('crowdfundsme:0fb3b33116c547ff952f429e5036ae0e');  // ← Replace with your API_USER:API_KEY
+    const response = await fetch('https://sandbox.momodeveloper.mtn.com/collection/token/', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Basic ${basicAuth}`,
+            'Ocp-Apim-Subscription-Key': '0fb3b33116c547ff952f429e5036ae0e'  // ← Replace
+        }
+    });
+
+    if (!response.ok) throw new Error('Failed to get MTN access token');
+    const data = await response.json();
+    return data.access_token;
+}
   /**
    * Show waiting UI for payment confirmation
    */
@@ -175,11 +237,11 @@ class MTNPaymentHandler {
   validateMTNPhone(phoneNumber) {
     const cleaned = phoneNumber.replace(/[\s\-\(\)]/g, '');
 
-    // Valid formats: +237XXXXXXXXX, 237XXXXXXXXX, 0XXXXXXXXX
+    // Valid formats: +237XXXXXXXXX, 237XXXXXXXXX
     const validFormats = [
       /^\+237\d{8,9}$/,   // +237XXXXXXXXX (9 or 10 digits)
       /^237\d{8,9}$/,     // 237XXXXXXXXX
-      /^0\d{8,9}$/,       // 0XXXXXXXXX
+
     ];
 
     return validFormats.some((format) => format.test(cleaned));

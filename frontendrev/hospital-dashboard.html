@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hospital Dashboard - Cancer Patient Support Platform</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         .dashboard-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -116,8 +117,15 @@
             <li><a href="events.html">Events</a></li>
             <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
             <li><a href="about.html">About Us</a></li>
-            <li><a href="hospital-dashboard.html">Dashboard</a></li>
-            <li><a href="hospital-login.html">Logout</a></li>
+            <li class="nav-item dropdown">
+    <a href="#" class="nav-link dropdown-toggle" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-bell"></i> <!-- Font Awesome bell icon -->
+        <span class="badge bg-danger notification-count" style="display:none;">0</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" id="notificationDropdown" aria-labelledby="notificationBell" style="max-height: 400px; overflow-y: auto; width: 350px;">
+        <!-- Notifications appear here -->
+    </ul>
+</li>
         </ul>
     </nav>
 
@@ -213,7 +221,6 @@
             <div class="footer-section">
                 <h4>Get Involved</h4>
                 <ul>
-                    <li><a href="create-account.html">Create Account</a></li>
                     <li><a href="donate.html">Make a Donation</a></li>
                     <li><a href="verification.html">Patient Verification</a></li>
                 </ul>
