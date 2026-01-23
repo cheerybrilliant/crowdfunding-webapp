@@ -92,8 +92,6 @@ model VerificationRequest {
   id              String      @id @default(auto()) @map("_id") @db.ObjectId
   patientName     String
   patientEmail    String
-  hospital        Hospital    @relation(fields: [hospitalId], references: [id])
-  hospitalId      String      @db.ObjectId
   diagnosis       String
   treatmentCost   Float
   status          String      @default("pending")
