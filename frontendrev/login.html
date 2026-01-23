@@ -138,14 +138,19 @@
 
             // FIXED: Proper redirect without unnecessary blocks
             setTimeout(() => {
-                if (user.accountType === 'patient' && !user.verified) {
+                 if (user.accountType === 'patient'&& !user.verified) {
                     window.location.href = 'verification.html';
-                } else if (user.accountType === 'patient') {
-                    window.location.href = 'patient-dashboard.html';
+                     
                 } else {
-                    window.location.href = 'donor-dashboard.html';
+                    window.location.href = 'patient-dashboard.html';
                 }
+
             }, 1000);
+           setTimeout(() => {
+             if (user.accountType=='donor'){
+                window.location.href = 'donor-dashboard.html';
+             }
+            }, 2000);
         });
     </script>
 </body>
