@@ -17,10 +17,8 @@ model User {
   verified         Boolean  @default(false)
 
   // ── One patient → can have one campaign ──
-  campaign         Campaign? @relation("PatientToCampaign")
-  campaignId       String?   @unique @db.ObjectId
-
-  donations        Donation[]
+  campaign         Campaign? @relation("UserCampaign")
+  donations        Donation[] @relation("UserDonations")
 
   registrationDate DateTime @default(now())
   createdAt        DateTime @default(now())
@@ -60,10 +58,9 @@ campaignId     String
 
 patientId    String? @unique @db.ObjectId
   // ── One campaign belongs to one patient ──
-  patient      User?      @relation("CampaignToPatient", fields:[patientId], references: [id])
-  
-
-  donations    Donation[]
+  patientId    String?   @unique @db.ObjectId
+  patient      User?     @relation("UserCampaign", fields: [patientId], references: [id])
+  donations    Donation[] @relation("CampaignDonations")
 
   creationDate DateTime @default(now())
   createdAt    DateTime @default(now())
@@ -95,10 +92,10 @@ model Donation {
   message       String?
   donorPhone    String?
 
-  donations    Donation[]
-
-  campaign      Campaign? @relation(fields: [campaignId], references: [id])
-  campaignId    String?   @db.ObjectId
+  userId       String?   @db.ObjectId
+  user         User?     @relation("UserDonations", fields: [userId], references: [id])
+  campaignId   String?   @db.ObjectId
+  campaign     Campaign? @relation("CampaignDonations", fields: [campaignId], references: [id])
 
   event         Event?    @relation(fields: [eventId], references: [id])
   eventId       String?   @db.ObjectId
