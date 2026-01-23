@@ -70,9 +70,9 @@ export const updateCampaign = [
       }
 
       const updatedCampaign = await campaignService.updateCampaign(id, req.body);
-      res.json(updatedCampaign);
+      return res.json(updatedCampaign);
     } catch (err: any) {
-      res.status(400).json({ message: err.message });
+      return res.status(400).json({ message: err.message });
     }
   },
 ];
@@ -93,9 +93,9 @@ export const deleteCampaign = [
       }
 
       await campaignService.deleteCampaign(id);
-      res.json({ message: 'Campaign deleted successfully' });
+      return res.json({ message: 'Campaign deleted successfully' });
     } catch (err: any) {
-      res.status(400).json({ message: err.message });
+      return res.status(400).json({ message: err.message });
     }
   },
 ];
