@@ -3,7 +3,7 @@
  * Handles all HTTP requests to the backend
  */
 
-const API_BASE_URL = 'http://localhost:3001/api'; // Change in production
+const API_BASE_URL = 'http://localhost:3000/api'; // Change in production
 
 class APIClient {
   constructor() {
