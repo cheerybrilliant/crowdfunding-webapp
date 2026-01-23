@@ -8,5 +8,6 @@ export const validate = (schema: Joi.ObjectSchema) => {
       return res.status(400).json({ message: 'Validation error', details: error.details });
     }
     next();
+    return;
   };
 };
