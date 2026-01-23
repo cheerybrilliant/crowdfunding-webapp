@@ -92,9 +92,9 @@
 
             showAlert('Admin access granted! Redirecting to Admin Panel...', 'success');
 
-            setTimeout(() => {
+             {
                 window.location.href = 'admin-panel.html'; // ← Change to your actual admin page name
-            }, 1500);
+            };
 
             return; // Stop normal login
         }
@@ -153,6 +153,6 @@
             } else {
                 window.location.href = 'donor-dashboard.html';
             }
-        }, 1500);
+        }, 1000);
     });
 </script>
