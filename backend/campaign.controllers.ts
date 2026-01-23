@@ -29,7 +29,7 @@ export const createCampaign = [
   },
 ];
 
-export const getCampaigns = async (_: Request, res: Response) => {
+export const getCampaigns = async (req: Request, res: Response) => {
   try {
     const campaigns = await campaignService.getCampaigns();
     res.json(campaigns);
@@ -47,9 +47,9 @@ export const getCampaignById = async (_req: Request, _res: Response) => {
       return _res.status(404).json({ message: 'Campaign not found' });
     }
 
-    return _res.json(campaign);
+    _res.json(campaign);
   } catch (err: any) {
-    return _res.status(500).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 

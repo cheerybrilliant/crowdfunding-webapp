@@ -1,7 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { config } from './config';
-import authRoutes from './auth.routes';
+import authRoutes from './auth/auth.routes';
 import campaignRoutes from './campaign.routes';
 import donationRoutes from './donation.routes';
 
