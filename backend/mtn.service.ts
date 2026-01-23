@@ -13,17 +13,10 @@ interface MTNPaymentRequest {
   payeeNote?: string;
 }
 
-interface MTNPaymentResponse {
-  financialTransactionId: string;
-  status: string;
-  statusDescription?: string;
-}
 
 export class MTNPaymentService {
   private api: AxiosInstance;
   private baseUrl: string;
-  private primaryKey: string;
-  private secondaryKey: string;
   private subscriptionKey: string;
 
   constructor() {
@@ -32,8 +25,6 @@ export class MTNPaymentService {
         ? config.MTN.PRODUCTION_URL
         : config.MTN.SANDBOX_URL;
 
-    this.primaryKey = config.MTN.PRIMARY_KEY;
-    this.secondaryKey = config.MTN.SECONDARY_KEY;
     this.subscriptionKey = config.MTN.SUBSCRIPTION_KEY;
 
     this.api = axios.create({
@@ -47,7 +38,7 @@ export class MTNPaymentService {
    */
   async initiatePayment(paymentData: MTNPaymentRequest): Promise<any> {
     try {
-      const response = await this.api.post('/v1_0/requesttopay', paymentData, {
+      await this.api.post('/v1_0/requesttopay', paymentData, {
         headers: {
           'Ocp-Apim-Subscription-Key': this.subscriptionKey,
           'X-Reference-Id': paymentData.externalId,
