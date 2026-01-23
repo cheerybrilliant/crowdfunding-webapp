@@ -54,9 +54,6 @@ model Campaign {
   patientAge   Int?
   hospitalName String
   photo        String?
-campaignId     String
-
-patientId    String? @unique @db.ObjectId
   // ── One campaign belongs to one patient ──
   patientId    String?   @unique @db.ObjectId
   patient      User?     @relation("UserCampaign", fields: [patientId], references: [id])
