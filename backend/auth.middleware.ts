@@ -10,8 +10,9 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
     const decoded = jwt.verify(token, config.JWT_SECRET) as any;
     (req as any).user = decoded;
     next();
+    return;
   } catch (err) {
-    res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Invalid token' });
   }
 };
 
@@ -24,8 +25,9 @@ export const hospitalAuth = (req: Request, res: Response, next: NextFunction) =>
     if (!decoded.hospitalId) return res.status(403).json({ message: 'Not authorized as hospital' });
     (req as any).hospital = decoded;
     next();
+    return;
   } catch (err) {
-    res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Invalid token' });
   }
 };
 
@@ -34,4 +36,5 @@ export const adminAuth = (req: Request, res: Response, next: NextFunction) => {
     return res.status(403).json({ message: 'Admin access required' });
   }
   next();
+  return;
 };
