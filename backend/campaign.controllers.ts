@@ -59,8 +59,18 @@ export const updateCampaign = [
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const campaign = await campaignService.updateCampaign(id, req.body);
-      res.json(campaign);
+      const campaign = await campaignService.getCampaignById(id);
+      if (!campaign) {
+        return res.status(404).json({ message: 'Campaign not found' });
+      }
+
+      const userId = (req as any).user?.id;
+      if (!userId || campaign.patientId !== userId) {
+        return res.status(403).json({ message: 'Not authorized to update this campaign' });
+      }
+
+      const updatedCampaign = await campaignService.updateCampaign(id, req.body);
+      res.json(updatedCampaign);
     } catch (err: any) {
       res.status(400).json({ message: err.message });
     }
@@ -72,6 +82,16 @@ export const deleteCampaign = [
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
+      const campaign = await campaignService.getCampaignById(id);
+      if (!campaign) {
+        return res.status(404).json({ message: 'Campaign not found' });
+      }
+
+      const userId = (req as any).user?.id;
+      if (!userId || campaign.patientId !== userId) {
+        return res.status(403).json({ message: 'Not authorized to delete this campaign' });
+      }
+
       await campaignService.deleteCampaign(id);
       res.json({ message: 'Campaign deleted successfully' });
     } catch (err: any) {

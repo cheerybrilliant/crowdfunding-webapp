@@ -32,7 +32,7 @@ export const createDonation = [
           status: 'PENDING',
           requestId: paymentResponse.requestId || donation.id,
           message: 'MTN payment request sent. Awaiting customer confirmation on phone.',
-          pollUrl: `/api/donations/mtn-status/${donation.id}`,
+          pollUrl: `/api/donations/${donation.id}/mtn-status`,
         },
         message: 'Donation created. Please complete payment on your phone.',
       });

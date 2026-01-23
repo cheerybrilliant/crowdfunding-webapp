@@ -4,6 +4,14 @@ import prisma from './prisma.service';
 
 const startServer = async () => {
   try {
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL is not set. Check your backend/.env file.');
+    }
+
+    if (config.NODE_ENV === 'production' && config.JWT_SECRET.startsWith('your_')) {
+      throw new Error('JWT_SECRET must be set to a strong value in production.');
+    }
+
     // Test database connection
     await prisma.$connect();
     console.log('✓ Database connected successfully');
