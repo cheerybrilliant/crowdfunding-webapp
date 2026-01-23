@@ -218,7 +218,8 @@
         window.addEventListener('load', function() {
             const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
-            if (!currentUser || currentUser.userType !== 'patient') {
+            const userType = currentUser ? (currentUser.userType || currentUser.accountType) : null;
+            if (!currentUser || userType !== 'patient') {
                 showAlert('Please login as a patient to access this page', 'error');
                 
                     window.location.href = 'login.html';
@@ -310,7 +311,7 @@
 
         // Share campaign function
         function shareCampaign(campaignId) {
-            const url = window.location.origin + '/campaign-details.html?id=' + campaignId;
+            const url = new URL(`campaign-details.html?id=${campaignId}`, window.location.href).toString();
 
             if (navigator.share) {
                 navigator.share({

@@ -40,7 +40,9 @@ class MTNPaymentHandler {
    */
   setupDonationForm() {
     const donationForm = document.getElementById('donationForm');
-    if (!donationForm) return;
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    const amountInput = document.getElementById('amount');
+    if (!donationForm || !paymentMethodSelect || !amountInput) return;
 
     donationForm.addEventListener('submit', async (e) => {
       e.preventDefault();

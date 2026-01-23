@@ -138,5 +138,3 @@ const apiClient = new APIClient();
 
 // Make available globally
 window.apiClient = apiClient;
-
-export default apiClient;

@@ -207,7 +207,8 @@
         window.addEventListener('load', function() {
             const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
-            if (!currentUser || currentUser.userType !== 'donor') {
+            const userType = currentUser ? (currentUser.userType || currentUser.accountType) : null;
+            if (!currentUser || userType !== 'donor') {
                 showAlert('Please login as a donor to access this page', 'error');
                
                     window.location.href = 'login.html';

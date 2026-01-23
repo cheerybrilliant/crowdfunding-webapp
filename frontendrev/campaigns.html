@@ -40,15 +40,14 @@
     </footer>
 
     <script src="script.js"></script>
-    <script src="api.js"></script>
     <script>
         // Load and display campaigns from backend
-        async function displayCampaigns() {
+        function displayCampaigns() {
             const container = document.getElementById('campaignsContainer');
             
             try {
-                // Fetch campaigns from backend
-                const campaigns = await campaignAPI.getAll();
+                // Load campaigns from local storage
+                const campaigns = loadCampaigns();
                 
                 // Clear container
                 container.innerHTML = '';

@@ -53,7 +53,7 @@ class AuthManager {
     localStorage.removeItem('currentUser');
     apiClient.clearAuthToken();
     showAlert('Logged out successfully', 'info');
-    window.location.href = '/frontendrev/login.html';
+    window.location.href = 'login.html';
   }
 
   static getCurrentUser() {
@@ -62,7 +62,7 @@ class AuthManager {
   }
 
   static isAuthenticated() {
-    return apiClient.isAuthenticated() && !!this.getCurrentUser();
+    return apiClient.isAuthenticated() || !!this.getCurrentUser();
   }
 }
 
@@ -132,7 +132,7 @@ class DonationManager {
     try {
       if (!apiClient.isAuthenticated()) {
         showAlert('Please login to make a donation', 'warning');
-        window.location.href = '/frontendrev/login.html';
+        window.location.href = 'login.html';
         return;
       }
 
@@ -282,7 +282,7 @@ function setupAuthForms() {
 
         // Redirect after successful registration
         setTimeout(() => {
-          window.location.href = '/frontendrev/donor-dashboard.html';
+          window.location.href = 'donor-dashboard.html';
         }, 1500);
       } catch (error) {
         console.error('Registration error:', error);
@@ -310,8 +310,8 @@ function setupAuthForms() {
         // Redirect based on account type
         const user = AuthManager.getCurrentUser();
         const redirectUrl = user.accountType === 'patient' 
-          ? '/frontendrev/patient-dashboard.html'
-          : '/frontendrev/donor-dashboard.html';
+          ? 'patient-dashboard.html'
+          : 'donor-dashboard.html';
 
         setTimeout(() => {
           window.location.href = redirectUrl;
@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const currentPage = window.location.pathname.split('/').pop();
   if (protectedPages.some((page) => currentPage.includes(page))) {
     if (!AuthManager.isAuthenticated()) {
-      window.location.href = '/frontendrev/login.html';
+      window.location.href = 'login.html';
     }
   }
 });
