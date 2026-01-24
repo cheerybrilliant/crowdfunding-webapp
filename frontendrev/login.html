@@ -105,7 +105,8 @@
                         window.location.href = 'admin-panel.html';
                     }, 1000);
                 } catch (error) {
-                    showAlert('Invalid admin credentials', 'error');
+                    const message = error && error.message ? error.message : 'Invalid admin credentials';
+                    showAlert(message, 'error');
                 }
                 return;
             }
