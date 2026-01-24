@@ -32,7 +32,7 @@ export const hospitalAuth = (req: Request, res: Response, next: NextFunction) =>
 };
 
 export const adminAuth = (req: Request, res: Response, next: NextFunction) => {
-  if (!(req as any).user || (req as any).user.email !== 'admin@cancercare.com') {
+  if (!(req as any).user || (req as any).user.role !== 'admin') {
     return res.status(403).json({ message: 'Admin access required' });
   }
   next();
