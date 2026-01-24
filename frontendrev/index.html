@@ -115,19 +115,10 @@
         <div class="cards-container">
             <div class="card feature-card">
                 <div class="feature-icon-text">VERIFIED</div>
-                <h3>100% Verified Patients</h3>
+                <h3>Verified Patients</h3>
                 <p>
-                    Every patient is verified by our partner hospitals in Yaoundé.
-                    You can donate with confidence knowing your support reaches real patients.
-                </p>
-            </div>
-
-            <div class="card feature-card">
-                <div class="feature-icon-text">HOSPITAL</div>
-                <h3>Trusted Hospital Partners</h3>
-                <p>
-                    We work with leading hospitals in Yaoundé to ensure medical
-                    documentation is authentic and treatment plans are legitimate.
+                    Every campaign is reviewed by our team in Yaoundé.
+                    You can donate with confidence knowing your support reaches those in need.
                 </p>
             </div>
 
@@ -146,15 +137,6 @@
                 <p>
                     Track every donation and see exactly how funds are being used
                     to support cancer patients and health initiatives.
-                </p>
-            </div>
-
-            <div class="card feature-card">
-                <div class="feature-icon-text">EDUCATION</div>
-                <h3>Health Education</h3>
-                <p>
-                    Join our free health seminars to learn about cancer prevention,
-                    early detection, and treatment options.
                 </p>
             </div>
 
@@ -183,55 +165,6 @@
         </div>
     </div>
 
-    <!-- Partner Hospitals Section -->
-    <div class="container">
-        <h2 class="page-title">Our Trusted Partner Hospitals</h2>
-        <p class="section-subtitle">
-            We collaborate with leading hospitals in Yaoundé to verify every patient campaign
-        </p>
-
-        <div class="cards-container">
-            <div class="card hospital-card">
-                <h3>Yaoundé General Hospital</h3>
-                <p class="hospital-location">Centre Ville, Yaoundé</p>
-                <p class="hospital-services">Oncology Department, Chemotherapy, Radiation Therapy</p>
-                <span class="verified-badge">Verified Partner</span>
-            </div>
-            <div class="card hospital-card">
-                <h3>Yaoundé Central Hospital</h3>
-                <p class="hospital-location">Tsinga, Yaoundé</p>
-                <p class="hospital-services">Cancer Screening, Surgery, Patient Support</p>
-                <span class="verified-badge">Verified Partner</span>
-            </div>
-            <div class="card hospital-card">
-                <h3>University Teaching Hospital</h3>
-                <p class="hospital-location">Ngoa-Ekelle, Yaoundé</p>
-                <p class="hospital-services">Advanced Cancer Treatment, Research, Clinical Trials</p>
-                <span class="verified-badge">Verified Partner</span>
-            </div>
-        </div>
-
-        <div class="text-center mt-2">
-            <a href="partner-hospitals.html" class="btn btn-primary">View All Partner Hospitals</a>
-        </div>
-    </div>
-
-    <!-- Upcoming Events Section -->
-    <div class="events-section">
-        <div class="container">
-            <h2 class="page-title">Upcoming Health Events</h2>
-            <p class="section-subtitle">Join our free health seminars and community gatherings</p>
-
-            <div id="upcomingEvents" class="cards-container">
-                <!-- Events will be loaded here by JavaScript -->
-            </div>
-
-            <div class="text-center mt-2">
-                <a href="events.html" class="btn btn-primary">View All Events</a>
-            </div>
-        </div>
-    </div>
-
     <!-- About Section -->
     <div class="container">
         <div class="about-home-section">
@@ -243,8 +176,8 @@
                     find hope, support, and the financial resources they need to fight their battle.
                 </p>
                 <p>
-                    Every patient is verified by our partner hospitals, ensuring that your donations
-                    reach those who truly need help. Together, we're making quality cancer treatment
+                    Every campaign is reviewed to help donors support real patients.
+                    Together, we are making quality cancer treatment
                     accessible to everyone in our community.
                 </p>
                 <a href="about.html" class="btn btn-secondary">Meet Our Team</a>
@@ -277,8 +210,6 @@
                 <h4>Quick Links</h4>
                 <ul>
                     <li><a href="campaigns.html">Active Campaigns</a></li>
-                    <li><a href="events.html">Health Events</a></li>
-                    <li><a href="partner-hospitals.html">Partner Hospitals</a></li>
                     <li><a href="about.html">About Us</a></li>
                 </ul>
             </div>
@@ -287,7 +218,6 @@
                 <ul>
                     <li><a href="create-account.html">Create Account</a></li>
                     <li><a href="donate.html">Make a Donation</a></li>
-                    <li><a href="verification.html">Patient Verification</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -303,7 +233,6 @@
         </div>
     </footer>
 
-    <script src="api-client.js"></script>
     <script src="script.js"></script>
     <script>
         // Load featured campaigns on home page
@@ -312,12 +241,7 @@
 
             if (featuredCampaignsContainer) {
                 try {
-                    let campaigns = [];
-                    if (window.apiClient) {
-                        campaigns = await window.apiClient.getCampaigns();
-                    } else {
-                        campaigns = loadCampaigns();
-                    }
+                    const campaigns = loadCampaigns();
                     
                     // Show first 3 campaigns
                     campaigns.slice(0, 3).forEach(campaign => {
@@ -362,44 +286,6 @@
                 }
             }
 
-            // Load upcoming events
-            const upcomingEventsContainer = document.getElementById('upcomingEvents');
-            if (upcomingEventsContainer) {
-                const events = [
-                    {
-                        title: 'Cancer Prevention Seminar',
-                        date: 'February 15, 2026',
-                        location: 'Yaoundé General Hospital',
-                        type: 'Seminar'
-                    },
-                    {
-                        title: 'Free Health Screening',
-                        date: 'February 22, 2026',
-                        location: 'Community Center, Tsinga',
-                        type: 'Health Gathering'
-                    },
-                    {
-                        title: 'Nutrition & Cancer Workshop',
-                        date: 'March 1, 2026',
-                        location: 'University Teaching Hospital',
-                        type: 'Seminar'
-                    }
-                ];
-
-                events.forEach(event => {
-                    const eventCard = document.createElement('div');
-                    eventCard.className = 'card event-card';
-                    eventCard.innerHTML = `
-                        <span class="event-type-badge ${event.type === 'Seminar' ? 'seminar' : 'health-gathering'}">${event.type}</span>
-                        <h3>${event.title}</h3>
-                        <p><strong>Date:</strong> ${event.date}</p>
-                        <p><strong>Location:</strong> ${event.location}</p>
-                        <a href="events.html" class="btn btn-primary" style="margin-top: 1rem;">Learn More</a>
-                    `;
-
-                    upcomingEventsContainer.appendChild(eventCard);
-                });
-            }
         });
     </script>
     <script>
@@ -457,8 +343,6 @@
             navLinks.appendChild(createNavItem('Create Account', 'create-account.html'));
         }
 
-        // Hospital Login stays at the end (always visible)
-        navLinks.appendChild(createNavItem('Hospital Login', 'hospital-login.html', true));
     });
 </script>
 </body>
