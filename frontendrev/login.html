@@ -103,27 +103,16 @@
 
             let responseUser = null;
             try {
-                const response = await window.apiClient.request('POST', '/auth/login', { email, password });
+                const response = await window.apiClient.loginUser(email, password);
                 responseUser = response.user;
+                window.apiClient.setAuthToken(response.token);
             } catch (error) {
                 showAlert(error.message || 'Invalid credentials', 'error');
                 return;
             }
 
             // Create session
-            const currentUser = {
-                fullName: responseUser.fullName,
-                email: responseUser.email,
-                phone: responseUser.phone || '',
-                accountType: responseUser.accountType,
-                userType: responseUser.accountType,
-                verified: responseUser.verified || false,
-                sessionToken: generateSecureToken(),
-                registrationDate: responseUser.registrationDate || new Date().toISOString(),
-                loginTime: new Date().toISOString()
-            };
-
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('currentUser', JSON.stringify(responseUser));
             showAlert('Login successful!', 'success');
 
             // Redirect based on account type

@@ -202,29 +202,20 @@
 
             // Create user in backend
             try {
-                await window.apiClient.request('POST', '/auth/register', {
+                const response = await window.apiClient.registerUser({
                     fullName,
                     email,
                     phone,
                     password,
                     accountType
                 });
+                window.apiClient.setAuthToken(response.token);
+                localStorage.setItem('currentUser', JSON.stringify(response.user));
             } catch (error) {
-                showAlert(error.message || 'Registration failed', 'error');
+                const message = error.message || 'Registration failed';
+                showAlert(message, 'error');
                 return;
             }
-
-            // Save user locally for current UI flow
-            const userData = {
-                fullName,
-                email,
-                phone,
-                password,
-                accountType,
-                verified: accountType === 'donor'
-            };
-
-            saveUserData(userData);
             showAlert('Account created successfully!', 'success');
 
             // FIXED: Proper redirect
