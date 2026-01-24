@@ -20,6 +20,15 @@ app.use(cors({
     credentials: true
 }));
 
+// Basic health checks for Render and uptime monitors
+app.get('/', (_req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
+
+app.get('/health', (_req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
+
 // In-memory storage (replace with database in production)
 const donations = new Map();
 const paymentTransactions = new Map();
