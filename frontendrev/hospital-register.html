@@ -249,13 +249,6 @@
                 return;
             }
 
-            // Check if hospital ID already exists
-            const hospitals = JSON.parse(localStorage.getItem('hospitals') || '[]');
-            if (hospitals.some(h => h.hospitalId === hospitalId)) {
-                showAlert('This Hospital ID is already registered', 'error');
-                return;
-            }
-
             try {
                 await window.apiClient.request('POST', '/auth/hospital/register', {
                     hospitalId,
@@ -271,32 +264,6 @@
                 showAlert(error.message || 'Hospital registration failed', 'error');
                 return;
             }
-
-            // Create hospital account (pending approval) in localStorage for UI
-            const hospitalAccount = {
-                hospitalId: hospitalId,
-                hospitalName: hospitalName,
-                address: hospitalAddress,
-                phone: hospitalPhone,
-                adminName: adminName,
-                adminEmail: adminEmail,
-                password: hashPassword(password),
-                registeredDate: new Date().toISOString(),
-                status: 'pending',
-                verified: false,
-                verifiedPatients: [],
-                services: 'Oncology Department, Cancer Screening, Patient Verification'
-            };
-
-            hospitals.push(hospitalAccount);
-            localStorage.setItem('hospitals', JSON.stringify(hospitals));
-
-            const credentials = JSON.parse(localStorage.getItem('hospitalCredentials') || '{}');
-            credentials[hospitalId] = {
-                password: hashPassword(password),
-                name: hospitalName
-            };
-            localStorage.setItem('hospitalCredentials', JSON.stringify(credentials));
 
             showAlert('Hospital registration submitted successfully! Your account is pending admin approval. You will be contacted at ' + adminEmail + ' once approved.', 'success');
 

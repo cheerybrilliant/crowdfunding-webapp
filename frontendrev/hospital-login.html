@@ -26,12 +26,12 @@
             <!-- Hospital Login Form -->
             <form id="hospitalLoginForm" class="form">
                 <div class="form-group">
-                    <label for="hospitalId">Hospital ID</label>
+                    <label for="adminEmail">Admin Email</label>
                     <input 
-                        type="text" 
-                        id="hospitalId" 
-                        name="hospitalId" 
-                        placeholder="Enter your hospital ID"
+                        type="email" 
+                        id="adminEmail" 
+                        name="adminEmail" 
+                        placeholder="Enter your admin email"
                         required
                     >
                 </div>
@@ -68,18 +68,26 @@
         document.getElementById('hospitalLoginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const hospitalId = document.getElementById('hospitalId').value;
+            const adminEmail = document.getElementById('adminEmail').value;
             const password = document.getElementById('password').value;
-            
-            // Simple validation (demo purposes)
-            if (hospitalId === 'HOSP001' && password === 'hospital123') {
-                alert('Login successful! Redirecting to dashboard...');
+
+            try {
+                const response = await window.apiClient.loginHospital(adminEmail, password);
+                const session = {
+                    hospitalId: response.hospital.hospitalId,
+                    hospitalName: response.hospital.hospitalName,
+                    sessionToken: response.token,
+                    loginTime: new Date().toISOString(),
+                    expiresAt: new Date(Date.now() + 3600000).toISOString()
+                };
+                localStorage.setItem('hospitalSession', JSON.stringify(session));
                 window.location.href = 'hospital-dashboard.html';
-            } else {
-                alert('Invalid hospital ID or password. Please try again.');
+            } catch (error) {
+                showAlert(error.message || 'Invalid hospital email or password. Please try again.', 'error');
             }
         });
     </script>
+    <script src="api-client.js"></script>
 </body>
 </html>
 
