@@ -63,7 +63,6 @@
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
     </footer>
 
-    <script src="api-client.js"></script>
     <script src="script.js"></script>
 
     <script>
@@ -101,27 +100,36 @@
                 return;
             }
 
-            let responseUser = null;
-            try {
-                const response = await window.apiClient.loginUser(email, password);
-                responseUser = response.user;
-                window.apiClient.setAuthToken(response.token);
-            } catch (error) {
-                showAlert(error.message || 'Invalid credentials', 'error');
+            const users = getUserDatabase();
+            const matchedUser = users.find((user) => user.email.toLowerCase() === email.toLowerCase());
+
+            if (!matchedUser) {
+                showAlert('Account not found. Please create an account.', 'error');
                 return;
             }
 
-            // Create session
-            localStorage.setItem('currentUser', JSON.stringify(responseUser));
+            const hashedInput = hashPassword(password);
+            if (matchedUser.passwordHash !== hashedInput) {
+                showAlert('Invalid credentials', 'error');
+                return;
+            }
+
+            const accountType = matchedUser.accountType || matchedUser.userType || 'donor';
+            saveUserData({
+                fullName: matchedUser.fullName,
+                email: matchedUser.email,
+                phone: matchedUser.phone || '',
+                accountType,
+                userType: matchedUser.userType || accountType,
+                verified: !!matchedUser.verified,
+                password
+            });
+
+            const responseUser = getCurrentUser();
             showAlert('Login successful!', 'success');
 
             // Redirect based on account type
             setTimeout(() => {
-                if (responseUser.accountType === 'patient' && !responseUser.verified) {
-                    window.location.href = 'verification.html';
-                    return;
-                }
-
                 if (responseUser.accountType === 'donor') {
                     window.location.href = 'donor-dashboard.html';
                 } else {

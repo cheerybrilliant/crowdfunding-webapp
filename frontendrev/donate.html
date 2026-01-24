@@ -160,7 +160,8 @@
             const campaignId = urlParams.get('campaign');
             
             if (campaignId) {
-                const campaign = getCampaignById(campaignId);
+                const campaigns = loadCampaigns();
+                const campaign = campaigns.find((item) => String(item.id) === String(campaignId));
                 if (campaign) {
                     const campaignInfo = document.getElementById('campaignInfo');
                     campaignInfo.style.display = 'block';
@@ -172,7 +173,7 @@
             }
         }
         
-        // Handle form submission with backend payment
+        // Handle form submission with local storage
         document.getElementById('donationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -189,6 +190,8 @@
             const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
             const donorName = sanitizeInput(document.getElementById('donorName').value) || 'Anonymous';
             const campaignId = new URLSearchParams(window.location.search).get('campaign');
+            const currentUser = getCurrentUser();
+            const donorEmail = currentUser ? currentUser.email : '';
 
             // Validate amount (prevent negative or excessive amounts)
             if (isNaN(amount) || amount < 500) {
@@ -213,33 +216,42 @@
                 return;
             }
 
-            try {
-                if (window.DonationManager && typeof window.DonationManager.createDonation === 'function') {
-                    await window.DonationManager.createDonation({
-                        amount,
-                        donorName,
-                        donorPhone: phoneNumber,
-                        paymentMethod,
-                        campaignId: campaignId || undefined
-                    });
-                } else {
-                    showAlert('Payment service not ready. Please refresh and try again.', 'error');
-                    return;
-                }
+            const donations = JSON.parse(localStorage.getItem('donations') || '[]');
+            const donationRecord = {
+                id: Date.now(),
+                amount,
+                donorName,
+                donorEmail,
+                donorPhone: phoneNumber,
+                paymentMethod,
+                campaignId: campaignId || null,
+                message: '',
+                status: 'successful',
+                date: new Date().toISOString()
+            };
 
-                document.getElementById('donationForm').reset();
-            } catch (error) {
-                console.error('Donation error:', error);
-                showAlert('Failed to initiate payment. Please try again.', 'error');
+            donations.push(donationRecord);
+            localStorage.setItem('donations', JSON.stringify(donations));
+
+            if (campaignId) {
+                const campaigns = loadCampaigns();
+                const campaign = campaigns.find((item) => String(item.id) === String(campaignId));
+                if (campaign) {
+                    const currentRaised = Number(campaign.raisedAmount || campaign.raised || 0);
+                    const updatedRaised = currentRaised + amount;
+                    campaign.raisedAmount = updatedRaised;
+                    campaign.raised = updatedRaised;
+                    saveCampaigns(campaigns);
+                }
             }
+
+            showAlert('Donation recorded successfully. Thank you!', 'success');
+            document.getElementById('donationForm').reset();
         });
         
         // Load campaign info when page loads
         window.addEventListener('load', checkCampaignDonation);
     </script>
-    <script src="api-client.js"></script>
-    <script src="backend-integration.js"></script>
-    <script src="mtn-payment-handler.js"></script>
 </body>
 </html>
 
