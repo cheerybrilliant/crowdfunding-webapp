@@ -4,6 +4,8 @@ import { config } from './config';
 import authRoutes from './auth.routes';
 import campaignRoutes from './campaign.routes';
 import donationRoutes from './donation.routes';
+import eventRoutes from './event.routes';
+import verificationRoutes from './verification.routes';
 
 const app: Express = express();
 
@@ -48,6 +50,8 @@ app.get('/api/health', (_req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/donations', donationRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/verification-requests', verificationRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

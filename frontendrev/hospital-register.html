@@ -184,13 +184,14 @@
         </div>
     </footer>
 
+    <script src="api-client.js"></script>
     <script src="script.js"></script>
     <script>
         // Verification code (in production, this would be server-side)
         const VALID_VERIFICATION_CODE = "CANCER2026";
 
         // Handle hospital registration form submission
-        document.getElementById('hospitalRegisterForm').addEventListener('submit', function(e) {
+        document.getElementById('hospitalRegisterForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             // Get and sanitize form values
@@ -255,7 +256,23 @@
                 return;
             }
 
-            // Create hospital account (pending approval)
+            try {
+                await window.apiClient.request('POST', '/auth/hospital/register', {
+                    hospitalId,
+                    hospitalName,
+                    address: hospitalAddress,
+                    phone: hospitalPhone,
+                    adminName,
+                    adminEmail,
+                    password,
+                    verificationCode
+                });
+            } catch (error) {
+                showAlert(error.message || 'Hospital registration failed', 'error');
+                return;
+            }
+
+            // Create hospital account (pending approval) in localStorage for UI
             const hospitalAccount = {
                 hospitalId: hospitalId,
                 hospitalName: hospitalName,
@@ -265,17 +282,15 @@
                 adminEmail: adminEmail,
                 password: hashPassword(password),
                 registeredDate: new Date().toISOString(),
-                status: 'pending', // Changed from 'active' to 'pending'
-                verified: false, // Not verified until admin approves
+                status: 'pending',
+                verified: false,
                 verifiedPatients: [],
-                services: 'Oncology Department, Cancer Screening, Patient Verification' // Default services
+                services: 'Oncology Department, Cancer Screening, Patient Verification'
             };
 
-            // Save to localStorage
             hospitals.push(hospitalAccount);
             localStorage.setItem('hospitals', JSON.stringify(hospitals));
 
-            // Also add to hospitalCredentials in script.js format
             const credentials = JSON.parse(localStorage.getItem('hospitalCredentials') || '{}');
             credentials[hospitalId] = {
                 password: hashPassword(password),

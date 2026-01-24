@@ -109,15 +109,18 @@ model VerificationRequest {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   patientName     String
   patientEmail    String
-  diagnosis       String
+  campaignTitle   String
+  hospitalName    String
+  description     String?
+  patientAge      Int?
   treatmentCost   Float
   status          String   @default("pending")
   rejectionReason String?
 
   submittedDate   DateTime @default(now())
 
-  hospital        Hospital @relation(fields: [hospitalId], references: [id])
-  hospitalId      String   @db.ObjectId
+  hospital        Hospital? @relation(fields: [hospitalId], references: [id])
+  hospitalId      String?   @db.ObjectId
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

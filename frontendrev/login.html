@@ -63,6 +63,7 @@
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
     </footer>
 
+    <script src="api-client.js"></script>
     <script src="script.js"></script>
 
     <script>
@@ -100,30 +101,25 @@
                 return;
             }
 
-            const users = getUserDatabase();
-            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-            if (!user) {
-                showAlert('No account found with this email', 'error');
-                return;
-            }
-
-            const hashedInput = hashPassword(password);
-            if (hashedInput !== user.passwordHash) {
-                showAlert('Incorrect password', 'error');
+            let responseUser = null;
+            try {
+                const response = await window.apiClient.request('POST', '/auth/login', { email, password });
+                responseUser = response.user;
+            } catch (error) {
+                showAlert(error.message || 'Invalid credentials', 'error');
                 return;
             }
 
             // Create session
             const currentUser = {
-                fullName: user.fullName,
-                email: user.email,
-                phone: user.phone || '',
-                accountType: user.accountType,
-                userType: user.accountType,
-                verified: user.verified || false,
+                fullName: responseUser.fullName,
+                email: responseUser.email,
+                phone: responseUser.phone || '',
+                accountType: responseUser.accountType,
+                userType: responseUser.accountType,
+                verified: responseUser.verified || false,
                 sessionToken: generateSecureToken(),
-                registrationDate: user.registrationDate || new Date().toISOString(),
+                registrationDate: responseUser.registrationDate || new Date().toISOString(),
                 loginTime: new Date().toISOString()
             };
 
@@ -132,12 +128,12 @@
 
             // Redirect based on account type
             setTimeout(() => {
-                if (user.accountType === 'patient' && !user.verified) {
+                if (responseUser.accountType === 'patient' && !responseUser.verified) {
                     window.location.href = 'verification.html';
                     return;
                 }
 
-                if (user.accountType === 'donor') {
+                if (responseUser.accountType === 'donor') {
                     window.location.href = 'donor-dashboard.html';
                 } else {
                     window.location.href = 'patient-dashboard.html';

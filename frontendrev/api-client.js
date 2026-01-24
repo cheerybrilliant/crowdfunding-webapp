@@ -109,6 +109,40 @@ class APIClient {
     return this.request('GET', `/donations/${donationId}/mtn-status`);
   }
 
+  // Event endpoints
+  async createEvent(eventData) {
+    return this.request('POST', '/events', eventData);
+  }
+
+  async getEvents() {
+    return this.request('GET', '/events');
+  }
+
+  async updateEvent(id, eventData) {
+    return this.request('PUT', `/events/${id}`, eventData);
+  }
+
+  async deleteEvent(id) {
+    return this.request('DELETE', `/events/${id}`);
+  }
+
+  // Verification request endpoints
+  async createVerificationRequest(requestData) {
+    return this.request('POST', '/verification-requests', requestData);
+  }
+
+  async getVerificationRequests() {
+    return this.request('GET', '/verification-requests');
+  }
+
+  async approveVerificationRequest(id) {
+    return this.request('POST', `/verification-requests/${id}/approve`);
+  }
+
+  async rejectVerificationRequest(id) {
+    return this.request('POST', `/verification-requests/${id}/reject`);
+  }
+
   /**
    * Set auth token after login
    */

@@ -340,6 +340,7 @@
         </div>
     </div>
 
+    <script src="api-client.js"></script>
     <script src="script.js"></script>
     <script>
         // Admin credentials (frontend-only demo)
@@ -530,8 +531,19 @@
             displayAllHospitals(hospitals);
         }
 
-        function loadVerificationRequests() {
-            const requests = JSON.parse(localStorage.getItem('verificationRequests') || '[]');
+        async function loadVerificationRequests() {
+            let requests = [];
+            if (window.apiClient) {
+                try {
+                    requests = await window.apiClient.request('GET', '/verification-requests');
+                } catch (error) {
+                    console.error('Verification requests API error:', error);
+                }
+            }
+
+            if (!Array.isArray(requests) || requests.length === 0) {
+                requests = JSON.parse(localStorage.getItem('verificationRequests') || '[]');
+            }
             const container = document.getElementById('verificationRequestsList');
 
             if (requests.length === 0) {
@@ -548,6 +560,7 @@
                         : 'status-pending';
                 const statusText = request.status.charAt(0).toUpperCase() + request.status.slice(1);
 
+                const goalAmount = request.treatmentCost || request.goalAmount || 0;
                 const requestHTML = `
                     <div class="pending-hospital" style="border-left-color: ${request.status === 'approved' ? '#2ecc71' : request.status === 'rejected' ? '#e74c3c' : '#f39c12'};">
                         <h3 style="color: #2c3e50; margin-top: 0;">${request.patientName}</h3>
@@ -568,7 +581,7 @@
                             </div>
                             <div class="detail-item">
                                 <strong>Goal Amount:</strong>
-                                ${request.goalAmount.toLocaleString()} XAF
+                                ${goalAmount.toLocaleString()} XAF
                             </div>
                             <div class="detail-item">
                                 <strong>Submitted:</strong>
@@ -591,9 +604,16 @@
             });
         }
 
-        function approveVerification(requestId) {
-            const requests = JSON.parse(localStorage.getItem('verificationRequests') || '[]');
-            const request = requests.find(r => String(r.id) === String(requestId));
+        async function approveVerification(requestId) {
+            let requests = JSON.parse(localStorage.getItem('verificationRequests') || '[]');
+            let request = requests.find(r => String(r.id) === String(requestId));
+            if (window.apiClient) {
+                try {
+                    await window.apiClient.request('POST', `/verification-requests/${requestId}/approve`);
+                } catch (error) {
+                    console.error('Approve API error:', error);
+                }
+            }
             if (!request) return;
 
             request.status = 'approved';
@@ -642,10 +662,18 @@
             loadOverview();
         }
 
-        function rejectVerification(requestId) {
+        async function rejectVerification(requestId) {
             const requests = JSON.parse(localStorage.getItem('verificationRequests') || '[]');
             const request = requests.find(r => String(r.id) === String(requestId));
             if (!request) return;
+
+            if (window.apiClient) {
+                try {
+                    await window.apiClient.request('POST', `/verification-requests/${requestId}/reject`);
+                } catch (error) {
+                    console.error('Reject API error:', error);
+                }
+            }
 
             request.status = 'rejected';
             request.rejectedDate = new Date().toISOString();

@@ -112,10 +112,11 @@
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
     </footer>
 
+    <script src="api-client.js"></script>
     <script src="script.js"></script>
     <script>
         // Handle form submission
-        document.getElementById('verificationForm').addEventListener('submit', function(e) {
+        document.getElementById('verificationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const campaignTitle = sanitizeInput(document.getElementById('campaignTitle').value.trim());
@@ -154,6 +155,23 @@
             
             const currentUser = getCurrentUser();
             if (currentUser && currentUser.accountType === 'patient') {
+                let apiRequest = null;
+                if (window.apiClient) {
+                    try {
+                        apiRequest = await window.apiClient.request('POST', '/verification-requests', {
+                            patientName: currentUser.fullName,
+                            patientEmail: currentUser.email,
+                            campaignTitle,
+                            hospitalName,
+                            treatmentCost: goalAmount,
+                            description: additionalInfo,
+                            patientAge: isNaN(patientAge) ? null : patientAge
+                        });
+                    } catch (error) {
+                        console.error('Verification API error:', error);
+                    }
+                }
+
                 const requests = JSON.parse(localStorage.getItem('verificationRequests') || '[]');
                 const existingIndex = requests.findIndex(r => r.patientEmail === currentUser.email && r.status === 'pending');
                 if (existingIndex !== -1) {
@@ -161,7 +179,7 @@
                 }
 
                 requests.unshift({
-                    id: Date.now(),
+                    id: apiRequest?.id || Date.now(),
                     patientEmail: currentUser.email,
                     patientName: currentUser.fullName,
                     patientAge: isNaN(patientAge) ? null : patientAge,

@@ -42,12 +42,16 @@
     <script src="script.js"></script>
     <script>
         // Load and display campaigns from backend
-        function displayCampaigns() {
+        async function displayCampaigns() {
             const container = document.getElementById('campaignsContainer');
             
             try {
-                // Load campaigns from local storage
-                const campaigns = loadCampaigns();
+                let campaigns = [];
+                if (window.apiClient) {
+                    campaigns = await window.apiClient.getCampaigns();
+                } else {
+                    campaigns = loadCampaigns();
+                }
                 
                 // Clear container
                 container.innerHTML = '';

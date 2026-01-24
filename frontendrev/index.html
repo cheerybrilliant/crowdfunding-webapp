@@ -305,6 +305,7 @@
         </div>
     </footer>
 
+    <script src="api-client.js"></script>
     <script src="script.js"></script>
     <script>
         // Load featured campaigns on home page
@@ -313,8 +314,12 @@
 
             if (featuredCampaignsContainer) {
                 try {
-                    // Load campaigns from local storage
-                    const campaigns = loadCampaigns();
+                    let campaigns = [];
+                    if (window.apiClient) {
+                        campaigns = await window.apiClient.getCampaigns();
+                    } else {
+                        campaigns = loadCampaigns();
+                    }
                     
                     // Show first 3 campaigns
                     campaigns.slice(0, 3).forEach(campaign => {

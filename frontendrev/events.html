@@ -199,8 +199,49 @@
         </div>
     </footer>
 
+    <script src="api-client.js"></script>
     <script src="script.js"></script>
     <script>
+        const seedEvents = [
+            {
+                title: 'Cancer Awareness Seminar',
+                date: '2026-02-15',
+                location: 'YaoundÃ© General Hospital',
+                description: 'An educational seminar about cancer prevention and early detection.',
+                goalAmount: 500000,
+                raisedAmount: 0
+            },
+            {
+                title: 'Free Health Screening',
+                date: '2026-02-28',
+                location: 'YaoundÃ© Central Hospital',
+                description: 'Free cancer screening event providing basic health checkups.',
+                goalAmount: 1200000,
+                raisedAmount: 0
+            }
+        ];
+
+        async function getEventsData() {
+            if (!window.apiClient) {
+                return loadEvents();
+            }
+
+            try {
+                let events = await window.apiClient.getEvents();
+                if ((!events || events.length === 0) && !localStorage.getItem('seededEvents')) {
+                    for (const event of seedEvents) {
+                        await window.apiClient.createEvent(event);
+                    }
+                    localStorage.setItem('seededEvents', 'true');
+                    events = await window.apiClient.getEvents();
+                }
+                return events;
+            } catch (error) {
+                console.error('Events API error:', error);
+                return loadEvents();
+            }
+        }
+
         // Generate calendar for February 2026
         function generateCalendar() {
             const grid = document.getElementById('calendarGrid');
@@ -220,7 +261,6 @@
                 grid.innerHTML += '<div class="calendar-day empty"></div>';
             }
 
-            // Event dates (from sampleEvents)
             const eventDates = [15, 28];
 
             // Add days of the month
@@ -232,9 +272,9 @@
         }
 
         // Display events list
-        function displayEvents() {
+        async function displayEvents() {
             const eventsList = document.getElementById('eventsList');
-            const events = loadEvents();
+            const events = await getEventsData();
 
             // Clear list
             eventsList.innerHTML = '';
