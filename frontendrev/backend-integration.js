@@ -130,12 +130,6 @@ class CampaignManager {
 class DonationManager {
   static async createDonation(donationData) {
     try {
-      if (!apiClient.isAuthenticated()) {
-        showAlert('Please login to make a donation', 'warning');
-        window.location.href = 'login.html';
-        return;
-      }
-
       const response = await apiClient.createDonation(donationData);
 
       if (donationData.paymentMethod === 'mtn') {
