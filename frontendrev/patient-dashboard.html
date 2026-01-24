@@ -236,24 +236,50 @@
 
         // Load patient dashboard data
         function loadPatientDashboard(user) {
-            const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
-            const patientCampaign = campaigns.find(c => c.patientEmail === user.email);
+            // Update verification status first
+            if (user.verified) {
+                document.getElementById('verificationStatus').className = 'status-badge status-verified';
+                document.getElementById('verificationStatus').textContent = 'Verified';
+                document.getElementById('verifiedBy').textContent = user.verifiedBy || 'Partner Hospital';
+            } else {
+                document.getElementById('verificationStatus').className = 'status-badge status-pending';
+                document.getElementById('verificationStatus').textContent = user.verificationStatus === 'pending'
+                    ? 'Pending Verification'
+                    : 'Not Verified';
+            }
+
+            let campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+            if (!Array.isArray(campaigns) && campaigns && Array.isArray(campaigns.campaigns)) {
+                campaigns = campaigns.campaigns;
+            }
+
+            const patientCampaign = Array.isArray(campaigns)
+                ? campaigns.find(c => c.patientEmail === user.email)
+                : null;
 
             if (patientCampaign) {
                 // Update stats
-                document.getElementById('totalRaised').textContent = patientCampaign.raised.toLocaleString() + ' XAF';
-                document.getElementById('goalAmount').textContent = patientCampaign.goal.toLocaleString() + ' XAF';
+                const raisedAmount = patientCampaign.raisedAmount || patientCampaign.raised || 0;
+                const goalAmount = patientCampaign.goalAmount || patientCampaign.goal || 0;
+                document.getElementById('totalRaised').textContent = raisedAmount.toLocaleString() + ' XAF';
+                document.getElementById('goalAmount').textContent = goalAmount.toLocaleString() + ' XAF';
                 document.getElementById('donorCount').textContent = patientCampaign.donors || 0;
 
                 // Calculate days left
-                const deadline = new Date(patientCampaign.deadline);
-                const today = new Date();
-                const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-                document.getElementById('daysLeft').textContent = daysLeft > 0 ? daysLeft : 'Ended';
+                if (patientCampaign.deadline) {
+                    const deadline = new Date(patientCampaign.deadline);
+                    const today = new Date();
+                    const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+                    document.getElementById('daysLeft').textContent = daysLeft > 0 ? daysLeft : 'Ended';
+                } else {
+                    document.getElementById('daysLeft').textContent = '--';
+                }
 
                 // Display campaign
                 const campaignDiv = document.getElementById('myCampaign');
-                const progressPercent = Math.min((patientCampaign.raised / patientCampaign.goal) * 100, 100);
+                const progressPercent = goalAmount > 0
+                    ? Math.min((raisedAmount / goalAmount) * 100, 100)
+                    : 0;
 
                 campaignDiv.innerHTML = `
                     <h3>${patientCampaign.title}</h3>
@@ -275,20 +301,7 @@
                 // Load recent donations
                 loadRecentDonations(patientCampaign.id);
             }
-
-            // Update verification status
-            if (user.verified) {
-                document.getElementById('verificationStatus').className = 'status-badge status-verified';
-                document.getElementById('verificationStatus').textContent = 'Verified';
-                document.getElementById('verifiedBy').textContent = user.verifiedBy || 'Partner Hospital';
-            } else {
-                document.getElementById('verificationStatus').className = 'status-badge status-pending';
-                document.getElementById('verificationStatus').textContent = user.verificationStatus === 'pending'
-                    ? 'Pending Verification'
-                    : 'Not Verified';
-            }
-
-}
+        }
 
         // Load recent donations
         function loadRecentDonations(campaignId) {

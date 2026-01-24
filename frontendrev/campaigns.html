@@ -39,7 +39,9 @@
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
     </footer>
 
+    <script src="api-client.js"></script>
     <script src="script.js"></script>
+    <script src="backend-integration.js"></script>
     <script>
         // Load and display campaigns from backend
         async function displayCampaigns() {
@@ -67,23 +69,28 @@
                 
                 // Create a card for each campaign
                 campaigns.forEach(campaign => {
+                    const raisedAmount = Number(campaign.raisedAmount || 0);
+                    const goalAmount = Number(campaign.goalAmount || 0);
+
                     // Calculate progress percentage
-                    const percentage = ((campaign.raisedAmount / campaign.goalAmount) * 100).toFixed(1);
+                    const percentage = goalAmount > 0
+                        ? ((raisedAmount / goalAmount) * 100).toFixed(1)
+                        : '0.0';
 
                     // Check if campaign has any donations
-                    const hasNoDonations = campaign.raisedAmount === 0;
+                    const hasNoDonations = raisedAmount === 0;
 
                     // Create card HTML
                     const cardHTML = `
                         <div class="card">
-                            <h3>${campaign.patientName}</h3>
-                            <p><strong>${campaign.title}</strong></p>
-                            <p>${campaign.description}</p>
+                            <h3>${campaign.patientName || 'Patient'}</h3>
+                            <p><strong>${campaign.title || 'Campaign'}</strong></p>
+                            <p>${campaign.description || ''}</p>
 
                             <div style="margin: 1rem 0;">
-                                <p><strong>Hospital:</strong> ${campaign.hospitalName}</p>
-                                <p><strong>Goal:</strong> ${formatCurrency(campaign.goalAmount)}</p>
-                                <p><strong>Raised:</strong> ${formatCurrency(campaign.raisedAmount)}</p>
+                                <p><strong>Hospital:</strong> ${campaign.hospitalName || 'Partner Hospital'}</p>
+                                <p><strong>Goal:</strong> ${formatCurrency(goalAmount)}</p>
+                                <p><strong>Raised:</strong> ${formatCurrency(raisedAmount)}</p>
 
                                 <div class="progress-bar">
                                     <div class="progress-fill" style="width: ${percentage}%"></div>

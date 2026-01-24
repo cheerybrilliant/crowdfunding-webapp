@@ -185,10 +185,13 @@ function getCurrentUser() {
 
     try {
         const user = JSON.parse(userData);
-        // Validate session token exists
+        // Accept backend-auth users without sessionToken if authToken exists
         if (!user.sessionToken) {
-            localStorage.removeItem('currentUser');
-            return null;
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) {
+                localStorage.removeItem('currentUser');
+                return null;
+            }
         }
         return user;
     } catch (e) {

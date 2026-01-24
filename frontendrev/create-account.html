@@ -211,6 +211,26 @@
                 });
                 window.apiClient.setAuthToken(response.token);
                 localStorage.setItem('currentUser', JSON.stringify(response.user));
+
+                // Update local offline cache without overwriting backend user data
+                const localUsers = getUserDatabase();
+                const existingIndex = localUsers.findIndex(u => u.email === email);
+                const offlineRecord = {
+                    fullName,
+                    email,
+                    phone,
+                    accountType,
+                    userType: accountType,
+                    verified: response.user.verified || false,
+                    passwordHash: hashPassword(password),
+                    registrationDate: new Date().toISOString()
+                };
+                if (existingIndex >= 0) {
+                    localUsers[existingIndex] = offlineRecord;
+                } else {
+                    localUsers.push(offlineRecord);
+                }
+                localStorage.setItem('userDatabase', JSON.stringify(localUsers));
             } catch (error) {
                 const message = error.message || 'Registration failed';
                 showAlert(message, 'error');
