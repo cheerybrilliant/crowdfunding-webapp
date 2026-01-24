@@ -155,8 +155,8 @@
             }
         }
         
-        // Handle form submission with security
-        document.getElementById('donationForm').addEventListener('submit', function(e) {
+        // Handle form submission with backend payment
+        document.getElementById('donationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             // Rate limiting check
@@ -171,6 +171,7 @@
             const phoneNumber = sanitizeInput(document.getElementById('phoneNumber').value);
             const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
             const donorName = sanitizeInput(document.getElementById('donorName').value) || 'Anonymous';
+            const campaignId = new URLSearchParams(window.location.search).get('campaign');
 
             // Validate amount (prevent negative or excessive amounts)
             if (isNaN(amount) || amount < 500) {
@@ -190,24 +191,30 @@
                 return;
             }
 
-            // Validate payment method
-            if (!['mtn', 'orange'].includes(paymentMethod)) {
-                showAlert('Invalid payment method selected', 'error');
+            if (paymentMethod !== 'mtn') {
+                showAlert('Only MTN Mobile Money is available right now.', 'warning');
                 return;
             }
 
-            // Show success message
-            const methodName = paymentMethod === 'mtn' ? 'MTN Mobile Money' : 'Orange Mobile Money';
-            showAlert(`Thank you ${donorName}! Your donation of ${formatCurrency(amount)} via ${methodName} is being processed.`, 'success');
+            try {
+                if (window.DonationManager && typeof window.DonationManager.createDonation === 'function') {
+                    await window.DonationManager.createDonation({
+                        amount,
+                        donorName,
+                        donorPhone: phoneNumber,
+                        paymentMethod,
+                        campaignId: campaignId || undefined
+                    });
+                } else {
+                    showAlert('Payment service not ready. Please refresh and try again.', 'error');
+                    return;
+                }
 
-            // Clear form
-            document.getElementById('donationForm').reset();
-
-            // In a real application, this would process the payment
-            // For now, we'll just redirect after a delay
-            setTimeout(() => {
-                window.location.href = 'campaigns.html';
-            }, 3000);
+                document.getElementById('donationForm').reset();
+            } catch (error) {
+                console.error('Donation error:', error);
+                showAlert('Failed to initiate payment. Please try again.', 'error');
+            }
         });
         
         // Load campaign info when page loads
