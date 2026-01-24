@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUser, loginUser, registerHospital, loginHospital } from './auth.service';
+import { registerUser, loginUser, registerHospital, loginHospital, loginAdmin } from './auth.service';
 import { validate } from './validate.middleware';
 import Joi from 'joi';
 
@@ -20,6 +20,11 @@ const hospitalSchema = Joi.object({
   adminEmail: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
   verificationCode: Joi.string().required(),
+});
+
+const adminSchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().min(6).required(),
 });
 
 export const registerUserController = [validate(userSchema), async (req: Request, res: Response) => {
@@ -57,3 +62,12 @@ export const loginHospitalController = async (req: Request, res: Response) => {
     res.status(401).json({ message: err.message });
   }
 };
+
+export const loginAdminController = [validate(adminSchema), async (req: Request, res: Response) => {
+  try {
+    const result = await loginAdmin(req.body.username, req.body.password);
+    res.json(result);
+  } catch (err: any) {
+    res.status(401).json({ message: err.message });
+  }
+}];

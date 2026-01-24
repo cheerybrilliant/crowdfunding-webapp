@@ -1,6 +1,7 @@
 import prisma from './prisma.service';
 import bcrypt from 'bcryptjs';
 import { signToken } from './jwt.utils';
+import { config } from './config';
 
 export const registerUser = async (data: any) => {
   const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
@@ -60,4 +61,17 @@ export const loginHospital = async (adminEmail: string, password: string) => {
 
   const token = signToken({ id: hospital.id, hospitalId: hospital.hospitalId, adminEmail: hospital.adminEmail });
   return { hospital: { ...hospital, passwordHash: undefined }, token };
+};
+
+export const loginAdmin = async (username: string, password: string) => {
+  if (!config.ADMIN_USERNAME || !config.ADMIN_PASSWORD) {
+    throw new Error('Admin credentials are not configured');
+  }
+
+  if (username !== config.ADMIN_USERNAME || password !== config.ADMIN_PASSWORD) {
+    throw new Error('Invalid credentials');
+  }
+
+  const token = signToken({ username, role: 'admin' });
+  return { admin: { username, role: 'admin' }, token };
 };
