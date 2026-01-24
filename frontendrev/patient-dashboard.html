@@ -278,13 +278,17 @@
 
             // Update verification status
             if (user.verified) {
-                document.getElementById('verificationStatus').textContent = 'Verified ✓';
+                document.getElementById('verificationStatus').className = 'status-badge status-verified';
+                document.getElementById('verificationStatus').textContent = 'Verified';
                 document.getElementById('verifiedBy').textContent = user.verifiedBy || 'Partner Hospital';
             } else {
                 document.getElementById('verificationStatus').className = 'status-badge status-pending';
-                document.getElementById('verificationStatus').textContent = 'Pending Verification';
+                document.getElementById('verificationStatus').textContent = user.verificationStatus === 'pending'
+                    ? 'Pending Verification'
+                    : 'Not Verified';
             }
-        }
+
+}
 
         // Load recent donations
         function loadRecentDonations(campaignId) {
