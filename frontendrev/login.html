@@ -63,7 +63,7 @@
         <p>&copy; 2026 CancerCare Platform. Created by six students dedicated to helping cancer patients.</p>
     </footer>
 
-    <!-- ONLY LOAD script.js - REMOVED backend-integration.js and api.js -->
+    <script src="api-client.js"></script>
     <script src="script.js"></script>
 
     <script>
@@ -83,12 +83,32 @@
             });
         });
 
+        const ADMIN_LOGIN_EMAIL = 'takowbrilliant25@gmail.com';
+
         // Handle login form submission
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+
+            if (email.toLowerCase() === ADMIN_LOGIN_EMAIL.toLowerCase()) {
+                try {
+                    const response = await window.apiClient.request('POST', '/auth/admin/login', {
+                        username: email,
+                        password
+                    });
+                    localStorage.setItem('adminSession', 'true');
+                    localStorage.setItem('adminToken', response.token);
+                    showAlert('Admin access granted! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'admin-panel.html';
+                    }, 1000);
+                } catch (error) {
+                    showAlert('Invalid admin credentials', 'error');
+                }
+                return;
+            }
 
             // === NORMAL USER LOGIN ===
             if (!validateEmail(email)) {
