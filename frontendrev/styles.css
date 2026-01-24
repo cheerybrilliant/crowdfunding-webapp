@@ -52,6 +52,21 @@ body {
     color: var(--white);
     text-decoration: none;
     letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.navbar .logo::before {
+    content: "";
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-image: url('image/logo.jpg');
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
 }
 
 .navbar .nav-links {
@@ -783,6 +798,11 @@ table th {
         text-align: center;
         width: 100%;
         font-size: 1.35rem;
+    }
+
+    .navbar .logo::before {
+        width: 30px;
+        height: 30px;
     }
 
     .navbar .nav-links {
