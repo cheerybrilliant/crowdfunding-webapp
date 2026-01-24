@@ -332,14 +332,12 @@
     </div>
 
     <script src="script.js"></script>
+    <script src="api-client.js"></script>
     <script>
-        // Admin credentials (in production, this would be server-side)
-        const ADMIN_USERNAME = 'admin';
-        const ADMIN_PASSWORD = 'CancerCare2026';
-
         // Check if admin is logged in
         function checkAdminLogin() {
             const adminSession = localStorage.getItem('adminSession');
+            const adminToken = localStorage.getItem('adminToken');
             if (adminSession) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
@@ -351,16 +349,21 @@
         }
 
         // Handle admin login
-        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+        document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const username = document.getElementById('adminUsername').value;
             const password = document.getElementById('adminPassword').value;
 
-            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+            try {
+                const response = await window.apiClient.request('POST', '/auth/admin/login', {
+                    username,
+                    password
+                });
                 localStorage.setItem('adminSession', 'true');
+                localStorage.setItem('adminToken', response.token);
                 showAlert('Login successful!', 'success');
                 checkAdminLogin();
-            } else {
+            } catch (error) {
                 showAlert('Invalid credentials', 'error');
             }
         });
@@ -368,6 +371,7 @@
         // Logout admin
         function logoutAdmin() {
             localStorage.removeItem('adminSession');
+            localStorage.removeItem('adminToken');
             window.location.reload();
         }
 

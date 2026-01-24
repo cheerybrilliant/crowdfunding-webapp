@@ -67,10 +67,6 @@
     <script src="script.js"></script>
 
     <script>
-        // SECRET ADMIN CREDENTIALS
-        const SECRET_ADMIN_USERNAME = "adminsecret";
-        const SECRET_ADMIN_PASSWORD = "CancerCareAdmin2026!";
-
         // Password visibility toggle
         document.querySelectorAll('.toggle-password').forEach((button) => {
             button.addEventListener('click', () => {
@@ -93,29 +89,6 @@
             
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-
-            // === ADMIN CHECK ===
-            if (email === SECRET_ADMIN_USERNAME && password === SECRET_ADMIN_PASSWORD) {
-                const adminSession = {
-                    username: SECRET_ADMIN_USERNAME,
-                    role: 'admin',
-                    sessionToken: generateSecureToken(),
-                    loginTime: new Date().toISOString(),
-                    expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
-                };
-
-                localStorage.setItem('adminSession', JSON.stringify(adminSession));
-                localStorage.setItem('currentUser', JSON.stringify(adminSession));
-
-                showAlert('Admin access granted! Redirecting...', 'success');
-                
-                // FIXED: Removed the unnecessary block
-                setTimeout(() => {
-                    window.location.href = 'admin-panel.html';
-                }, 1000);
-                
-                return;
-            }
 
             // === NORMAL USER LOGIN ===
             if (!validateEmail(email)) {
