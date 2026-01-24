@@ -155,6 +155,11 @@
             const currentUser = getCurrentUser();
             if (currentUser && currentUser.accountType === 'patient') {
                 const requests = JSON.parse(localStorage.getItem('verificationRequests') || '[]');
+                const existingIndex = requests.findIndex(r => r.patientEmail === currentUser.email && r.status === 'pending');
+                if (existingIndex !== -1) {
+                    requests.splice(existingIndex, 1);
+                }
+
                 requests.unshift({
                     id: Date.now(),
                     patientEmail: currentUser.email,
@@ -168,6 +173,20 @@
                     submittedDate: new Date().toISOString()
                 });
                 localStorage.setItem('verificationRequests', JSON.stringify(requests));
+
+                currentUser.verified = false;
+                currentUser.verifiedBy = '';
+                currentUser.verificationStatus = 'pending';
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                const users = getUserDatabase();
+                const userIndex = users.findIndex(u => u.email === currentUser.email);
+                if (userIndex !== -1) {
+                    users[userIndex].verified = false;
+                    users[userIndex].verifiedBy = '';
+                    users[userIndex].verificationStatus = 'pending';
+                    localStorage.setItem('userDatabase', JSON.stringify(users));
+                }
             }
 
             showAlert('Verification submitted. Please wait 2-3 business days for approval.', 'success');
