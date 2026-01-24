@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account - Cancer Patient Support Platform</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -65,14 +66,27 @@
                 <!-- Password -->
                 <div class="form-group">
                     <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                    <div id="passwordStrength" style="color: red; font-size: 0.9em; margin-top: 5px;"></div>
+                    <div class="password-field">
+                        <input type="password" id="password" name="password" required>
+                        <button type="button" class="toggle-password" data-target="password" aria-label="Show password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="strength-meter" aria-hidden="true">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div id="passwordStrength" class="strength-text"></div>
                 </div>
 
                 <!-- Confirm Password -->
                 <div class="form-group">
                     <label for="confirmPassword">Confirm Password:</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    <div class="password-field">
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        <button type="button" class="toggle-password" data-target="confirmPassword" aria-label="Show password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Submit Button -->
@@ -101,6 +115,62 @@
     <script src="script.js"></script>
     
     <script>
+        // Password visibility toggles
+        document.querySelectorAll('.toggle-password').forEach((button) => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const icon = button.querySelector('i');
+                if (!input || !icon) return;
+
+                const isHidden = input.type === 'password';
+                input.type = isHidden ? 'text' : 'password';
+                icon.classList.toggle('fa-eye', !isHidden);
+                icon.classList.toggle('fa-eye-slash', isHidden);
+                button.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+            });
+        });
+
+        // Password strength meter
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('passwordStrength');
+
+        function getPasswordScore(value) {
+            let score = 0;
+            if (value.length >= 8) score += 1;
+            if (value.length >= 12) score += 1;
+            if (/[A-Z]/.test(value)) score += 1;
+            if (/[a-z]/.test(value)) score += 1;
+            if (/[0-9]/.test(value)) score += 1;
+            if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(value)) score += 1;
+            return Math.min(score, 5);
+        }
+
+        function updateStrengthUI(value) {
+            const score = getPasswordScore(value);
+            const percent = (score / 5) * 100;
+            strengthBar.style.width = `${percent}%`;
+            strengthBar.setAttribute('data-score', score.toString());
+
+            if (!value) {
+                strengthText.textContent = '';
+                return;
+            }
+
+            if (score <= 2) {
+                strengthText.textContent = 'Weak';
+            } else if (score <= 4) {
+                strengthText.textContent = 'Good';
+            } else {
+                strengthText.textContent = 'Strong';
+            }
+        }
+
+        passwordInput.addEventListener('input', (e) => {
+            updateStrengthUI(e.target.value);
+        });
+
         // Handle form submission
         document.getElementById('createAccountForm').addEventListener('submit', function(e) {
             e.preventDefault();

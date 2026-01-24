@@ -33,7 +33,12 @@
                 <!-- Password -->
                 <div class="form-group">
                     <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
+                    <div class="password-field">
+                        <input type="password" id="password" name="password" required>
+                        <button type="button" class="toggle-password" data-target="password" aria-label="Show password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Submit Button -->
@@ -65,6 +70,22 @@
         // SECRET ADMIN CREDENTIALS
         const SECRET_ADMIN_USERNAME = "adminsecret";
         const SECRET_ADMIN_PASSWORD = "CancerCareAdmin2026!";
+
+        // Password visibility toggle
+        document.querySelectorAll('.toggle-password').forEach((button) => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const icon = button.querySelector('i');
+                if (!input || !icon) return;
+
+                const isHidden = input.type === 'password';
+                input.type = isHidden ? 'text' : 'password';
+                icon.classList.toggle('fa-eye', !isHidden);
+                icon.classList.toggle('fa-eye-slash', isHidden);
+                button.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+            });
+        });
 
         // Handle login form submission
         document.getElementById('loginForm').addEventListener('submit', function(e) {
