@@ -347,6 +347,89 @@
         const ADMIN_USERNAME = 'admin';
         const ADMIN_PASSWORD = 'CancerCare2026';
 
+        async function fetchHospitals() {
+            if (window.apiClient) {
+                try {
+                    return await window.apiClient.getHospitals();
+                } catch (error) {
+                    console.error('Hospitals API error:', error);
+                }
+            }
+            return JSON.parse(localStorage.getItem('hospitals') || '[]');
+        }
+
+        async function fetchUsers() {
+            if (window.apiClient) {
+                try {
+                    return await window.apiClient.getUsers();
+                } catch (error) {
+                    console.error('Users API error:', error);
+                }
+            }
+            return JSON.parse(localStorage.getItem('userDatabase') || '[]');
+        }
+
+        async function fetchCampaigns() {
+            if (window.apiClient) {
+                try {
+                    return await window.apiClient.getCampaigns();
+                } catch (error) {
+                    console.error('Campaigns API error:', error);
+                }
+            }
+            return getStoredCampaigns();
+        }
+
+        async function fetchEvents() {
+            if (window.apiClient) {
+                try {
+                    return await window.apiClient.getEvents();
+                } catch (error) {
+                    console.error('Events API error:', error);
+                }
+            }
+            return JSON.parse(localStorage.getItem('events') || '[]');
+        }
+
+        async function fetchDonations() {
+            if (window.apiClient) {
+                try {
+                    return await window.apiClient.getDonations();
+                } catch (error) {
+                    console.error('Donations API error:', error);
+                }
+            }
+            const campaigns = getStoredCampaigns();
+            const eventDonations = JSON.parse(localStorage.getItem('eventDonations') || '[]');
+            const donations = [];
+
+            campaigns.forEach(campaign => {
+                (campaign.donations || []).forEach(donation => {
+                    donations.push({
+                        ...donation,
+                        campaign
+                    });
+                });
+            });
+
+            eventDonations.forEach(donation => {
+                donations.push(donation);
+            });
+
+            return donations;
+        }
+
+        async function fetchVerificationRequests() {
+            if (window.apiClient) {
+                try {
+                    return await window.apiClient.getVerificationRequests();
+                } catch (error) {
+                    console.error('Verification API error:', error);
+                }
+            }
+            return JSON.parse(localStorage.getItem('verificationRequests') || '[]');
+        }
+
         function getStoredCampaigns() {
             try {
                 const stored = JSON.parse(localStorage.getItem('campaigns') || 'null');
@@ -367,12 +450,12 @@
         }
 
         // Check if admin is logged in
-        function checkAdminLogin() {
+        async function checkAdminLogin() {
             const adminSession = localStorage.getItem('adminSession');
             if (adminSession) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
-                loadHospitals();
+                await loadHospitals();
             } else {
                 document.getElementById('loginSection').style.display = 'block';
                 document.getElementById('adminPanel').style.display = 'none';
@@ -401,7 +484,7 @@
         }
 
         // Tab switching
-        function showTab(tabName) {
+        async function showTab(tabName) {
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.style.display = 'none';
@@ -419,101 +502,94 @@
             event.target.classList.add('active');
 
             // Load data for the tab
-            if (tabName === 'overview') loadOverview();
-            if (tabName === 'hospitals') loadHospitals();
-            if (tabName === 'verifications') loadVerificationRequests();
-            if (tabName === 'campaigns') loadCampaigns();
-            if (tabName === 'users') loadUsers();
-            if (tabName === 'events') loadEvents();
-            if (tabName === 'donations') loadDonations();
+            if (tabName === 'overview') await loadOverview();
+            if (tabName === 'hospitals') await loadHospitals();
+            if (tabName === 'verifications') await loadVerificationRequests();
+            if (tabName === 'campaigns') await loadCampaigns();
+            if (tabName === 'users') await loadUsers();
+            if (tabName === 'events') await loadEvents();
+            if (tabName === 'donations') await loadDonations();
         }
 
         // Load overview data
-        function loadOverview() {
-            const users = JSON.parse(localStorage.getItem('userDatabase') || '[]');
-            const campaigns = getStoredCampaigns();
-            const events = JSON.parse(localStorage.getItem('events') || '[]');
-            const eventDonations = JSON.parse(localStorage.getItem('eventDonations') || '[]');
-
-            // Count campaign donations
-            let totalCampaignDonations = 0;
-            campaigns.forEach(campaign => {
-                totalCampaignDonations += (campaign.donations || []).length;
-            });
-
-            const totalDonations = totalCampaignDonations + eventDonations.length;
+        async function loadOverview() {
+            const [users, campaigns, events, donations] = await Promise.all([
+                fetchUsers(),
+                fetchCampaigns(),
+                fetchEvents(),
+                fetchDonations()
+            ]);
 
             document.getElementById('totalUsers').textContent = users.length;
             document.getElementById('totalCampaigns').textContent = campaigns.length;
-            document.getElementById('totalDonations').textContent = totalDonations;
+            document.getElementById('totalDonations').textContent = donations.length;
             document.getElementById('totalEvents').textContent = events.length;
 
             // Display recent activity
-            displayRecentActivity();
+            displayRecentActivity(users, campaigns);
         }
 
         // Display recent activity
-        function displayRecentActivity() {
+        function displayRecentActivity(users = [], campaigns = []) {
             const container = document.getElementById('recentActivity');
-            const users = JSON.parse(localStorage.getItem('userDatabase') || '[]');
-            const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
-            const hospitals = JSON.parse(localStorage.getItem('hospitals') || '[]');
+            const hospitalsPromise = fetchHospitals();
 
             let activities = [];
 
             // Add recent users
-            users.slice(-5).reverse().forEach(user => {
+            users.slice(0, 5).forEach(user => {
                 activities.push({
                     type: 'User Registration',
-                    description: `${user.fullName} registered as ${user.userType}`,
-                    date: user.registrationDate || new Date().toISOString()
+                    description: `${user.fullName} registered as ${user.accountType || user.userType || 'user'}`,
+                    date: user.registrationDate || user.createdAt || new Date().toISOString()
                 });
             });
 
             // Add recent campaigns
-            campaigns.slice(-5).reverse().forEach(campaign => {
+            campaigns.slice(0, 5).forEach(campaign => {
                 activities.push({
                     type: 'New Campaign',
                     description: `Campaign created for ${campaign.patientName}`,
-                    date: campaign.createdDate || new Date().toISOString()
+                    date: campaign.createdAt || campaign.creationDate || new Date().toISOString()
                 });
             });
 
-            // Add recent hospitals
-            hospitals.slice(-3).reverse().forEach(hospital => {
-                activities.push({
-                    type: 'Hospital Registration',
-                    description: `${hospital.hospitalName} registered (${hospital.status})`,
-                    date: hospital.registeredDate
+            hospitalsPromise.then(hospitals => {
+                hospitals.slice(0, 3).forEach(hospital => {
+                    activities.push({
+                        type: 'Hospital Registration',
+                        description: `${hospital.hospitalName} registered (${hospital.status})`,
+                        date: hospital.registeredDate || hospital.createdAt || new Date().toISOString()
+                    });
                 });
+
+                // Sort by date
+                activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+                activities = activities.slice(0, 10);
+
+                if (activities.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666;">No recent activity</p>';
+                    return;
+                }
+
+                let html = '<div style="padding: 1rem;">';
+                activities.forEach(activity => {
+                    html += `
+                        <div style="padding: 1rem; border-bottom: 1px solid #e0e0e0;">
+                            <strong style="color: #1976D2;">${activity.type}</strong>
+                            <p style="margin: 0.5rem 0; color: #666;">${activity.description}</p>
+                            <small style="color: #999;">${new Date(activity.date).toLocaleString()}</small>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
             });
-
-            // Sort by date
-            activities.sort((a, b) => new Date(b.date) - new Date(a.date));
-            activities = activities.slice(0, 10);
-
-            if (activities.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666;">No recent activity</p>';
-                return;
-            }
-
-            let html = '<div style="padding: 1rem;">';
-            activities.forEach(activity => {
-                html += `
-                    <div style="padding: 1rem; border-bottom: 1px solid #e0e0e0;">
-                        <strong style="color: #1976D2;">${activity.type}</strong>
-                        <p style="margin: 0.5rem 0; color: #666;">${activity.description}</p>
-                        <small style="color: #999;">${new Date(activity.date).toLocaleString()}</small>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            container.innerHTML = html;
         }
 
         // Load all hospitals
-        function loadHospitals() {
-            const hospitals = JSON.parse(localStorage.getItem('hospitals') || '[]');
+        async function loadHospitals() {
+            const hospitals = await fetchHospitals();
 
             // Update statistics
             const pending = hospitals.filter(h => h.status === 'pending').length;
@@ -532,18 +608,7 @@
         }
 
         async function loadVerificationRequests() {
-            let requests = [];
-            if (window.apiClient) {
-                try {
-                    requests = await window.apiClient.request('GET', '/verification-requests');
-                } catch (error) {
-                    console.error('Verification requests API error:', error);
-                }
-            }
-
-            if (!Array.isArray(requests) || requests.length === 0) {
-                requests = JSON.parse(localStorage.getItem('verificationRequests') || '[]');
-            }
+            const requests = await fetchVerificationRequests();
             const container = document.getElementById('verificationRequestsList');
 
             if (requests.length === 0) {
@@ -605,82 +670,34 @@
         }
 
         async function approveVerification(requestId) {
-            let requests = JSON.parse(localStorage.getItem('verificationRequests') || '[]');
-            let request = requests.find(r => String(r.id) === String(requestId));
-            if (window.apiClient) {
-                try {
-                    await window.apiClient.request('POST', `/verification-requests/${requestId}/approve`);
-                } catch (error) {
-                    console.error('Approve API error:', error);
-                }
-            }
-            if (!request) return;
-
-            request.status = 'approved';
-            request.approvedDate = new Date().toISOString();
-            localStorage.setItem('verificationRequests', JSON.stringify(requests));
-
-            const users = JSON.parse(localStorage.getItem('userDatabase') || '[]');
-            const userIndex = users.findIndex(u => u.email === request.patientEmail);
-            if (userIndex !== -1) {
-                users[userIndex].verified = true;
-                users[userIndex].verifiedBy = request.hospitalName;
-                localStorage.setItem('userDatabase', JSON.stringify(users));
+            if (!window.apiClient) {
+                showAlert('Backend not available for approval.', 'error');
+                return;
             }
 
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-            if (currentUser && currentUser.email === request.patientEmail) {
-                currentUser.verified = true;
-                currentUser.verifiedBy = request.hospitalName;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            try {
+                await window.apiClient.approveVerificationRequest(requestId);
+                showAlert('Verification approved and campaign created.', 'success');
+                await loadVerificationRequests();
+                await loadOverview();
+            } catch (error) {
+                showAlert(error.message || 'Failed to approve verification', 'error');
             }
-
-            const campaigns = getStoredCampaigns();
-            const newCampaign = {
-                id: Date.now(),
-                title: request.campaignTitle,
-                description: request.description || 'Medical support campaign',
-                goalAmount: request.goalAmount,
-                raisedAmount: 0,
-                patientName: request.patientName,
-                patientAge: request.patientAge || null,
-                hospitalName: request.hospitalName,
-                patientEmail: request.patientEmail,
-                verified: true,
-                creationDate: new Date().toISOString(),
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                raised: 0,
-                goal: request.goalAmount,
-                donors: 0
-            };
-            campaigns.unshift(newCampaign);
-            setStoredCampaigns(campaigns);
-
-            showAlert('Verification approved and campaign created.', 'success');
-            loadVerificationRequests();
-            loadOverview();
         }
 
         async function rejectVerification(requestId) {
-            const requests = JSON.parse(localStorage.getItem('verificationRequests') || '[]');
-            const request = requests.find(r => String(r.id) === String(requestId));
-            if (!request) return;
-
-            if (window.apiClient) {
-                try {
-                    await window.apiClient.request('POST', `/verification-requests/${requestId}/reject`);
-                } catch (error) {
-                    console.error('Reject API error:', error);
-                }
+            if (!window.apiClient) {
+                showAlert('Backend not available for rejection.', 'error');
+                return;
             }
 
-            request.status = 'rejected';
-            request.rejectedDate = new Date().toISOString();
-            localStorage.setItem('verificationRequests', JSON.stringify(requests));
-
-            showAlert('Verification rejected.', 'success');
-            loadVerificationRequests();
+            try {
+                await window.apiClient.rejectVerificationRequest(requestId);
+                showAlert('Verification rejected.', 'success');
+                await loadVerificationRequests();
+            } catch (error) {
+                showAlert(error.message || 'Failed to reject verification', 'error');
+            }
         }
 
         // Display pending hospitals

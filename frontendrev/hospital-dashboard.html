@@ -242,6 +242,7 @@
         </div>
     </footer>
 
+    <script src="api-client.js"></script>
     <script src="script.js"></script>
     <script>
         // Security: Check hospital authentication on page load
@@ -258,19 +259,30 @@
             if (headerTitle) {
                 headerTitle.textContent = `Hospital Admin Dashboard - ${session.hospitalName}`;
             }
+
+            loadDashboardStats();
         });
 
-        // Load pending verifications from localStorage
-        function getPendingVerifications() {
-            return JSON.parse(localStorage.getItem('verificationRequests') || '[]');
+        async function getPendingVerifications() {
+            if (window.apiClient) {
+                try {
+                    const requests = await window.apiClient.getVerificationRequests();
+                    return requests.filter(request => request.status === 'pending');
+                } catch (error) {
+                    console.error('Verification requests API error:', error);
+                }
+            }
+
+            return JSON.parse(localStorage.getItem('verificationRequests') || '[]')
+                .filter(request => request.status === 'pending');
         }
 
         // Display verifications
-        function displayVerifications() {
+        async function displayVerifications() {
             const tbody = document.querySelector('#verificationsTable tbody');
             tbody.innerHTML = '';
 
-            const pendingVerifications = getPendingVerifications().filter(v => v.status === 'pending');
+            const pendingVerifications = await getPendingVerifications();
 
             if (pendingVerifications.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #666;">No pending verifications</td></tr>';
@@ -278,10 +290,11 @@
             }
 
             pendingVerifications.forEach(verification => {
+                const details = verification.description || verification.campaignTitle || 'Medical verification';
                 const row = `
                     <tr>
                         <td>${verification.patientName}</td>
-                        <td>${verification.diagnosis}</td>
+                        <td>${details}</td>
                         <td>${new Date(verification.submittedDate).toLocaleDateString()}</td>
                         <td><span class="status-badge status-${verification.status}">${verification.status.toUpperCase()}</span></td>
                         <td class="action-buttons">
@@ -294,98 +307,107 @@
             });
 
             // Update pending count
-            document.querySelector('.stat-card:nth-child(2) .stat-number').textContent = pendingVerifications.length;
+            document.querySelector('.stat-card:nth-child(1) .stat-number').textContent = pendingVerifications.length;
         }
 
         // Approve verification and create campaign
-        function approveVerification(id) {
-            const verificationRequests = getPendingVerifications();
-            const verification = verificationRequests.find(v => v.id === id);
-
-            if (verification) {
-                // Update verification status
-                verification.status = 'approved';
-                verification.approvedDate = new Date().toISOString();
-                localStorage.setItem('verificationRequests', JSON.stringify(verificationRequests));
-
-                // Create new campaign
-                const campaigns = loadCampaigns();
-                const newCampaignId = campaigns.length > 0 ? Math.max(...campaigns.map(c => c.id)) + 1 : 1;
-
-                const newCampaign = {
-                    id: newCampaignId,
-                    patientName: verification.patientName,
-                    age: 0, // Will be updated when patient completes profile
-                    patientType: 'adult',
-                    story: `${verification.patientName} is fighting ${verification.diagnosis} and needs your support.`,
-                    fullStory: `${verification.patientName} has been diagnosed with ${verification.diagnosis} and requires urgent medical treatment. The estimated treatment cost is ${formatCurrency(verification.treatmentCost)}. Your support will help provide the necessary medical care.`,
-                    goalAmount: parseInt(verification.treatmentCost),
-                    raisedAmount: 0,
-                    image: 'patient-default.jpg',
-                    verified: true,
-                    verifiedBy: verification.hospitalId,
-                    createdDate: new Date().toISOString()
-                };
-
-                campaigns.push(newCampaign);
-
-                // Save campaigns to localStorage
-                const secureData = {
-                    campaigns: campaigns,
-                    checksum: generateChecksum(campaigns)
-                };
-                localStorage.setItem('campaigns', JSON.stringify(secureData));
-
-                // Update patient's verified status
-                const userDatabase = getUserDatabase();
-                if (userDatabase[verification.patientEmail]) {
-                    userDatabase[verification.patientEmail].userData.verified = true;
-                    userDatabase[verification.patientEmail].userData.campaignId = newCampaignId;
-                    localStorage.setItem('userDatabase', JSON.stringify(userDatabase));
+        async function approveVerification(id) {
+            try {
+                if (window.apiClient) {
+                    await window.apiClient.approveVerificationRequest(id);
                 }
 
-                alert(`Patient ${verification.patientName} has been approved and verified!\nA new campaign has been created.`);
+                alert('Verification approved! Campaign created for this patient.');
                 displayVerifications();
+                loadDashboardStats();
+            } catch (error) {
+                showAlert(error.message || 'Failed to approve verification', 'error');
             }
         }
 
         // Reject verification
-        function rejectVerification(id) {
-            const verificationRequests = getPendingVerifications();
-            const verification = verificationRequests.find(v => v.id === id);
+        async function rejectVerification(id) {
+            const reason = prompt('Please provide a reason for rejection:');
+            if (!reason) return;
 
-            if (verification) {
-                const reason = prompt('Please provide a reason for rejection:');
-                if (reason) {
-                    verification.status = 'rejected';
-                    verification.rejectedDate = new Date().toISOString();
-                    verification.rejectionReason = reason;
-                    localStorage.setItem('verificationRequests', JSON.stringify(verificationRequests));
-
-                    alert(`Verification for ${verification.patientName} has been rejected.\nReason: ${reason}`);
-                    displayVerifications();
+            try {
+                if (window.apiClient) {
+                    await window.apiClient.rejectVerificationRequest(id);
                 }
+                alert('Verification rejected.');
+                displayVerifications();
+                loadDashboardStats();
+            } catch (error) {
+                showAlert(error.message || 'Failed to reject verification', 'error');
             }
         }
 
         // Handle create event form
-        document.getElementById('createEventForm').addEventListener('submit', function(e) {
+        document.getElementById('createEventForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const title = document.getElementById('eventTitle').value;
             const date = document.getElementById('eventDate').value;
             const type = document.getElementById('eventType').value;
 
-            alert(`Event created successfully!\n\nTitle: ${title}\nDate: ${date}\nType: ${type}`);
+            const session = validateHospitalSession();
+            const location = session ? session.hospitalName : 'CancerCare Partner Hospital';
+
+            try {
+                await window.apiClient.createEvent({
+                    title,
+                    date,
+                    location,
+                    description: `${type} hosted by ${location}.`,
+                    eventType: type,
+                    needsFunding: true,
+                    goalAmount: 0
+                });
+                alert(`Event created successfully!\n\nTitle: ${title}\nDate: ${date}\nType: ${type}`);
+                loadDashboardStats();
+            } catch (error) {
+                showAlert(error.message || 'Failed to create event', 'error');
+                return;
+            }
 
             // Reset form
             this.reset();
         });
 
+        async function loadDashboardStats() {
+            const stats = document.querySelectorAll('.stat-card .stat-number');
+            if (!stats.length) return;
+
+            let pendingCount = 0;
+            let verifiedCount = 0;
+            let campaignCount = 0;
+            let eventCount = 0;
+
+            try {
+                if (window.apiClient) {
+                    const [requests, campaigns, events] = await Promise.all([
+                        window.apiClient.getVerificationRequests(),
+                        window.apiClient.getCampaigns(),
+                        window.apiClient.getEvents()
+                    ]);
+                    pendingCount = requests.filter(req => req.status === 'pending').length;
+                    verifiedCount = requests.filter(req => req.status === 'approved').length;
+                    campaignCount = campaigns.length;
+                    eventCount = events.length;
+                }
+            } catch (error) {
+                console.error('Dashboard stats error:', error);
+            }
+
+            stats[0].textContent = pendingCount;
+            stats[1].textContent = verifiedCount;
+            stats[2].textContent = campaignCount;
+            stats[3].textContent = eventCount;
+        }
+
         // Load verifications when page loads
         window.addEventListener('load', displayVerifications);
     </script>
-    <script src="api-client.js"></script>
     <script src="backend-integration.js"></script>
 </body>
 </html>
