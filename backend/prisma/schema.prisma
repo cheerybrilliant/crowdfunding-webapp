@@ -72,7 +72,11 @@ model Event {
   date         DateTime
   location     String
   description  String
+  eventType    String?
+  goalAmount   Float?
   raisedAmount Float    @default(0)
+  capacity     Int?
+  needsFunding Boolean  @default(false)
 
   donations    Donation[]
 

@@ -11,6 +11,7 @@ const donationSchema = Joi.object({
   campaignId: Joi.string().optional(),
   eventId: Joi.string().optional(),
   message: Joi.string().optional(),
+  userId: Joi.string().optional(),
 });
 
 export const createDonation = [
@@ -76,6 +77,25 @@ export const getCampaignDonations = async (req: Request, res: Response) => {
     const { campaignId } = req.params;
     const donations = await donationService.getDonationsByCampaign(campaignId);
 
+    res.json(donations);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getUserDonations = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const donations = await donationService.getDonationsByUser(userId);
+    res.json(donations);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getDonations = async (_req: Request, res: Response) => {
+  try {
+    const donations = await donationService.getAllDonations();
     res.json(donations);
   } catch (err: any) {
     res.status(500).json({ message: err.message });

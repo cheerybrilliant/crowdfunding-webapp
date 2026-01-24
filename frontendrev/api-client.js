@@ -105,6 +105,14 @@ class APIClient {
     return this.request('GET', `/donations/campaign/${campaignId}`);
   }
 
+  async getDonations() {
+    return this.request('GET', '/donations');
+  }
+
+  async getUserDonations(userId) {
+    return this.request('GET', `/donations/user/${userId}`);
+  }
+
   async checkMTNPaymentStatus(donationId) {
     return this.request('GET', `/donations/${donationId}/mtn-status`);
   }
@@ -124,6 +132,28 @@ class APIClient {
 
   async deleteEvent(id) {
     return this.request('DELETE', `/events/${id}`);
+  }
+
+  // Hospital endpoints
+  async getHospitals() {
+    return this.request('GET', '/hospitals');
+  }
+
+  async updateHospitalStatus(hospitalId, status) {
+    return this.request('PATCH', `/hospitals/${hospitalId}/status`, { status });
+  }
+
+  // User endpoints
+  async getUsers() {
+    return this.request('GET', '/users');
+  }
+
+  async getUserById(id) {
+    return this.request('GET', `/users/${id}`);
+  }
+
+  async deleteUser(id) {
+    return this.request('DELETE', `/users/${id}`);
   }
 
   // Verification request endpoints

@@ -13,6 +13,7 @@ export const createDonation = async (data: any) => {
       donorPhone: data.donorPhone.replace(/^\+/, ''), // normalize
       paymentMethod: data.paymentMethod,
       message: data.message,
+      userId: data.userId,
       campaignId: data.campaignId,
       eventId: data.eventId,
       status: 'pending',
@@ -55,6 +56,20 @@ export const getDonationById = async (id: string) => {
 export const getDonationsByCampaign = async (campaignId: string) => {
   return await prisma.donation.findMany({
     where: { campaignId, status: 'success' },
+    orderBy: { createdAt: 'desc' },
+  });
+};
+
+export const getDonationsByUser = async (userId: string) => {
+  return await prisma.donation.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  });
+};
+
+export const getAllDonations = async () => {
+  return await prisma.donation.findMany({
+    include: { campaign: true, event: true, user: true },
     orderBy: { createdAt: 'desc' },
   });
 };

@@ -8,8 +8,11 @@ const eventSchema = Joi.object({
   date: Joi.date().required(),
   location: Joi.string().required(),
   description: Joi.string().required(),
+  eventType: Joi.string().optional(),
   goalAmount: Joi.number().min(0).optional(),
   raisedAmount: Joi.number().min(0).optional(),
+  capacity: Joi.number().min(0).optional(),
+  needsFunding: Joi.boolean().optional(),
 });
 
 export const createEvent = [
