@@ -37,7 +37,7 @@ export const config = {
   HOSPITAL_VERIFICATION_CODE: process.env.HOSPITAL_VERIFICATION_CODE || '',
 
   // CORS
-  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:5173',
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:5173,https://cancercarefund.care',
 
   // API
   API_TIMEOUT: 30000,
